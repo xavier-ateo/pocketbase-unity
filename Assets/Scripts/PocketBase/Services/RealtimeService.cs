@@ -20,6 +20,23 @@ public class RealtimeService : BaseService
     {
     }
 
+    /// <summary>
+    /// Register the subscription listener.
+    /// </summary>
+    /// <remarks>
+    /// You can subscribe multiple times to the same topic.
+    ///
+    /// If the SSE connection is not started yet,
+    /// this method will also initialize it.
+    /// </remarks>
+    /// <example>
+    /// Here is an example listening to the connect/reconnect events:
+    /// <code lang="csharp">
+    /// pb.Realtime.Subscribe("PB_CONNECT", (e) {
+    ///   Debug.Log("Connected: ${e}");
+    /// });
+    /// </code>
+    /// </example>
     public async Task<UnsubscribeFunc> Subscribe(
         string topic,
         SubscriptionFunc listener,
@@ -106,6 +123,17 @@ public class RealtimeService : BaseService
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Unsubscribe from all subscription listeners starting with
+    /// the specified topic prefix.
+    /// </summary>
+    /// <remarks>
+    /// This method is no-op if there are no active subscriptions
+    /// with the specified topic prefix.
+    ///
+    /// The related sse connection will be autoclosed if after the
+    /// unsubscribe operation there are no active subscriptions left.
+    /// </remarks>
     public Task UnsubscribeByPrefix(string topicPrefix)
     {
         var beforeLength = _subscriptions.Count;
@@ -131,14 +159,17 @@ public class RealtimeService : BaseService
         return Task.CompletedTask;
     }
 
+    /// <summary>
     /// Unsubscribe from all subscriptions matching the specified topic
     /// and listener function.
-    ///
+    /// </summary>
+    /// <remarks>
     /// This method is no-op if there are no active subscription with
     /// the specified topic and listener.
     ///
     /// The related sse connection will be autoclosed if after the
     /// unsubscribe operation there are no active subscriptions left.
+    /// </remarks>
     private Task UnsubscribeByTopicAndListener(
         string topic,
         SubscriptionFunc listener)
