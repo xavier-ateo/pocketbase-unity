@@ -23,6 +23,22 @@ public class RecordService : BaseCrudService
     protected override string BaseCrudPath =>
         $"{BaseCollectionPath}/records";
 
+    // ---------------------------------------------------------------
+    // Realtime handlers
+    // ---------------------------------------------------------------
+
+
+    // ---------------------------------------------------------------
+    // Post update/delete AuthStore sync
+    // ---------------------------------------------------------------
+
+    /// <summary>
+    /// Updates a single record model by its id.
+    /// </summary>
+    /// <remarks>
+    /// If the current AuthStore model matches with the updated id, then
+    /// on success the client AuthStore will be updated with the result model.
+    /// </remarks>
     public override async Task<T> Update<T>(
         string id,
         object body = null,
@@ -43,6 +59,13 @@ public class RecordService : BaseCrudService
         return item;
     }
 
+    /// <summary>
+    /// Deletes a single record model by its id.
+    /// </summary>
+    /// <remarks>
+    /// If the current AuthStore model matches with the deleted id,
+    /// then on success the client AuthStore will be also cleared.
+    /// </remarks>
     public override async Task Delete(
         string id,
         object body = null,
@@ -59,6 +82,13 @@ public class RecordService : BaseCrudService
         }
     }
 
+    // -----------------------------------------------------------------
+    // Auth collection handlers
+    // -----------------------------------------------------------------
+
+    /// <summary>
+    /// Returns all available application auth methods.
+    /// </summary>
     public Task<AuthMethodList> ListAuthMethods(
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
@@ -70,6 +100,13 @@ public class RecordService : BaseCrudService
         );
     }
 
+    /// <summary>
+    /// Authenticate an auth record by its username/email and password
+    /// and returns a new auth token and record data.
+    /// </summary>
+    /// <remarks>
+    /// On success this method automatically updates the client's AuthStore.
+    /// </remarks>
     public async Task<RecordAuth> AuthWithPassword(
         string usernameOrEmail,
         string password,
@@ -100,6 +137,9 @@ public class RecordService : BaseCrudService
         return authResult;
     }
 
+    /// <summary>
+    /// Sends auth record password reset request.
+    /// </summary>
     public Task RequestPasswordReset(
         string email,
         Dictionary<string, object> body = null,
@@ -118,6 +158,9 @@ public class RecordService : BaseCrudService
         );
     }
 
+    /// <summary>
+    /// Confirms auth record password reset request.
+    /// </summary>
     public Task ConfirmPasswordReset(
         string passwordResetToken,
         string password,
@@ -140,6 +183,9 @@ public class RecordService : BaseCrudService
         );
     }
 
+    /// <summary>
+    /// Sends auth record verification request.
+    /// </summary>
     public Task RequestVerification(
         string email,
         Dictionary<string, object> body = null,
@@ -161,6 +207,12 @@ public class RecordService : BaseCrudService
         );
     }
 
+    /// <summary>
+    /// Confirms auth record email verification request.
+    /// </summary>
+    /// <remarks>
+    /// On success this method automatically updates the client's AuthStore.
+    /// </remarks>
     public async Task ConfirmVerification(
         string verificationToken,
         Dictionary<string, object> body = null,
@@ -197,7 +249,10 @@ public class RecordService : BaseCrudService
             _client.AuthStore.Save(_client.AuthStore.Token, userModel);
         }
     }
-
+    
+    /// <summary>
+    /// Sends auth record email change request to the provided email.
+    /// </summary>
     public Task RequestEmailChange(
         string newEmail,
         Dictionary<string, object> body = null,
@@ -216,6 +271,13 @@ public class RecordService : BaseCrudService
         );
     }
 
+    /// <summary>
+    /// Confirms auth record new email address.
+    /// </summary>
+    /// <remarks>
+    /// If the current AuthStore model matches with the record from the token,
+    /// then on success the client AuthStore will be also cleared.
+    /// </remarks>
     public async Task ConfirmEmailChange(
         string emailChangeToken,
         string userPassword,
@@ -254,6 +316,9 @@ public class RecordService : BaseCrudService
         }
     }
 
+    /// <summary>
+    /// Lists all linked external auth providers for the specified record.
+    /// </summary>
     public Task<List<ExternalAuthModel>> ListExternalAuths(
         string recordId,
         Dictionary<string, object> query = null,
@@ -266,6 +331,10 @@ public class RecordService : BaseCrudService
         );
     }
 
+    /// <summary>
+    /// Unlinks a single external auth provider relation from the
+    /// specified record.
+    /// </summary>
     public Task UnlinkExternalAuth(
         string recordId,
         string provider,
@@ -282,6 +351,13 @@ public class RecordService : BaseCrudService
         );
     }
 
+    /// <summary>
+    /// Authenticate an auth record with an OAuth2 client provider and returns
+    /// a new auth token and record data (including the OAuth2 user profile).
+    /// </summary>
+    /// <remarks>
+    /// On success this method automatically updates the client's AuthStore.
+    /// </remarks>
     public async Task<RecordAuth> AuthWithOAuth2Code(
         string provider,
         string code,
@@ -318,6 +394,13 @@ public class RecordService : BaseCrudService
         return authResult;
     }
 
+    /// <summary>
+    /// Refreshes the current authenticated auth record instance and
+    /// returns a new token and record data.
+    /// </summary>
+    /// <remarks>
+    /// On success this method automatically updates the client's AuthStore.
+    /// </remarks>
     public async Task<RecordAuth> AuthRefresh(
         string expand = null,
         string fields = null,
@@ -336,7 +419,7 @@ public class RecordService : BaseCrudService
             query: query,
             headers: headers
         );
-        
+
         _client.AuthStore.Save(authResult.Token, authResult.Record);
 
         return authResult;
