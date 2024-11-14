@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
-using UnityEngine;
 using UnityEngine.Networking;
 using static UnityEngine.Networking.UnityWebRequest.Result;
 
 public class PocketBase
 {
     public AuthStore AuthStore { get; }
+    public RealtimeService Realtime { get; }
 
     private readonly string _baseUrl;
     private readonly string _lang;
@@ -21,6 +21,8 @@ public class PocketBase
         AuthStore authStore = null)
     {
         AuthStore = authStore ?? new AuthStore();
+
+        Realtime = new RealtimeService(this);
 
         _baseUrl = baseUrl;
         _lang = lang;
