@@ -1,4 +1,3 @@
-using System.Timers;
 using UnityEngine;
 
 public class SseExample : MonoBehaviour
@@ -15,10 +14,13 @@ public class SseExample : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (_sseClient is null)
+            return;
+
         _sseClient.OnMessage -= OnMessage;
         _sseClient.OnClose -= OnClose;
         _sseClient.OnError -= Debug.LogException;
-        
+
         // Don't forget to dispose the client on object destruction if it holds an SSE connection.
         _sseClient.Dispose();
     }
