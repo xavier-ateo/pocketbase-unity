@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
+public delegate void RecordSubscriptionFunc<T>(RecordSubscriptionEvent<T> e);
+
 public class RecordService : BaseCrudService
 {
     public RecordService(PocketBase client, string collectionIdOrName) : base(client)
@@ -27,6 +29,25 @@ public class RecordService : BaseCrudService
     // Realtime handlers
     // ---------------------------------------------------------------
 
+    public Task<UnsubscribeFunc> Subscribe<T>(
+        string topic,
+        RecordSubscriptionFunc<T> callback,
+        string expand = null,
+        string filter = null,
+        string fields = null,
+        Dictionary<string, object> query = null,
+        Dictionary<string, string> headers = null)
+    {
+        return _client.Realtime.Subscribe(
+            $"{_collectionIdOrName}/{topic}",
+            e => callback(JsonConvert.DeserializeObject<RecordSubscriptionEvent<T>>(e.Data)),
+            expand,
+            filter,
+            fields,
+            query,
+            headers
+        );
+    }
 
     // ---------------------------------------------------------------
     // Post update/delete AuthStore sync
@@ -249,7 +270,7 @@ public class RecordService : BaseCrudService
             _client.AuthStore.Save(_client.AuthStore.Token, userModel);
         }
     }
-    
+
     /// <summary>
     /// Sends auth record email change request to the provided email.
     /// </summary>
