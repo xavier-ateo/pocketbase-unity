@@ -23,6 +23,12 @@ public class PocketBaseExample : MonoBehaviour
                 Debug.Log("User data: " + JsonConvert.SerializeObject(user, Formatting.Indented));
             }
         });
+
+        _pocketBase.Collection("post").Subscribe<Post>("*", post =>
+        {
+            Debug.Log(post.Action);
+            Debug.Log(post.Record.Content);
+        });
     }
 
     [ContextMenu(nameof(ListAuthMethods))]
