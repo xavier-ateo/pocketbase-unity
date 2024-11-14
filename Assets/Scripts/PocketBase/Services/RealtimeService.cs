@@ -199,7 +199,7 @@ public class RealtimeService : BaseService
         var completer = new TaskCompletionSource<bool>();
         string url = _client.BuildUrl("/api/realtime").AbsoluteUri;
 
-        _sse = new SseClient(url);
+        _sse = new SseClient(url, httpClient: _client.HttpClient);
         _sse.OnClose += () =>
         {
             Disconnect();

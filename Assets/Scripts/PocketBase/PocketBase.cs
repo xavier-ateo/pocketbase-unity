@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
@@ -8,6 +9,7 @@ using static UnityEngine.Networking.UnityWebRequest.Result;
 
 public class PocketBase
 {
+    public HttpClient HttpClient { get; }
     public AuthStore AuthStore { get; }
     public RealtimeService Realtime { get; }
 
@@ -18,9 +20,11 @@ public class PocketBase
     public PocketBase(
         string baseUrl,
         string lang = "en-US",
-        AuthStore authStore = null)
+        AuthStore authStore = null,
+        HttpClient httpClient = null)
     {
-        AuthStore = authStore ?? new AuthStore();
+        AuthStore = authStore ?? new();
+        HttpClient = httpClient ?? new();
 
         Realtime = new RealtimeService(this);
 
@@ -66,8 +70,6 @@ public class PocketBase
         req.downloadHandler = new DownloadHandlerBuffer();
 
         await req.SendWebRequest();
-
-        // Debug.Log(req.downloadHandler.text);
 
         if (req.result is not Success)
         {
