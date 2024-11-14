@@ -29,6 +29,23 @@ public class RecordService : BaseCrudService
     // Realtime handlers
     // ---------------------------------------------------------------
 
+    /// <summary>
+    /// Subscribe to realtime changes to the specified <see cref="topic"/> ("*" or record id).
+    /// </summary>
+    /// <remarks>
+    /// If <see cref="topic"/> is the wildcard "*", then this method will subscribe to
+    /// any record changes in the collection.
+    ///
+    /// If <see cref="topic"/> is a record id, then this method will subscribe only
+    /// to changes of the specified record id.
+    ///
+    /// It's OK to subscribe multiple times to the same topic.
+    /// </remarks>
+    /// <returns>
+    /// You can use the returned <see cref="UnsubscribeFunc"/> to remove the subscription.
+    /// Or use <see cref="Unsubscribe"/> if you want to remove all
+    /// subscriptions attached to the topic.
+    /// </returns>
     public Task<UnsubscribeFunc> Subscribe<T>(
         string topic,
         RecordSubscriptionFunc<T> callback,
@@ -47,6 +64,21 @@ public class RecordService : BaseCrudService
             query,
             headers
         );
+    }
+
+    /// <summary>
+    /// Unsubscribe from all subscriptions of the specified topic
+    /// ("*" or record id).
+    /// </summary>
+    /// <remarks>
+    /// If <see cref="topic"/> is the wildcard "*", then this method will unsubscribe
+    /// all subscriptions associated to the current collection.
+    /// </remarks>
+    public Task Unsubscribe(string topic = null)
+    {
+        return string.IsNullOrEmpty(topic)
+            ? _client.Realtime.Unsubscribe($"{_collectionIdOrName}/{topic}")
+            : _client.Realtime.UnsubscribeByPrefix(_collectionIdOrName);
     }
 
     // ---------------------------------------------------------------
