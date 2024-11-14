@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -10,12 +11,13 @@ using Timer = System.Timers.Timer;
 
 public class SseClient : IDisposable
 {
+    private static readonly HttpClient SHARED_CLIENT = new();
     private static readonly List<int> DEFAULT_RETRY_TIMEOUTS = new() { 200, 300, 500, 1000, 1200, 1500, 2000 };
     private static readonly Regex LINE_REGEX = new(@"^(\w+)[\s\:]+(.*)?$", RegexOptions.Compiled);
 
     public event Action<SseMessage> OnMessage;
-    public event Action OnClose;
     public event Action<Exception> OnError;
+    public event Action OnClose;
 
     private readonly HttpClient _httpClient;
     private readonly Uri _uri;
@@ -35,9 +37,11 @@ public class SseClient : IDisposable
     {
         _uri = new Uri(url);
         _maxRetry = maxRetry;
+        _httpClient = httpClient ?? SHARED_CLIENT;
 
-        _httpClient = httpClient ?? new HttpClient();
         Init();
+
+        Application.quitting += Dispose;
     }
 
     private async void Init()
@@ -53,19 +57,19 @@ public class SseClient : IDisposable
         {
             // Use ResponseHeadersRead to start processing the stream immediately after receiving the headers. 
             // This is mandatory to supports the long-lived connection required for SSE.
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 requestUri: _uri,
                 completionOption: HttpCompletionOption.ResponseHeadersRead,
-                cancellationToken: _cancellationTokenSource.Token
+                _cancellationTokenSource.Token
             );
             response.EnsureSuccessStatusCode();
 
             _retryAttempts = 0;
-
             _stream = await response.Content.ReadAsStreamAsync();
+
             using var streamReader = new StreamReader(_stream);
 
-            while (true)
+            while (!IsClosed && !_cancellationTokenSource.Token.IsCancellationRequested)
             {
                 string line = await streamReader.ReadLineAsync();
 
@@ -105,14 +109,20 @@ public class SseClient : IDisposable
                 }
             }
         }
-        catch (OperationCanceledException)
+        catch (WebException e)
         {
-            // Ignore
+            // Usually triggered on abruptly connection termination (e.g. when the server goes down).
+            // If the client is closed, we don't need to do anything.
+            if (IsClosed)
+            {
+                return;
+            }
+
+            OnError?.Invoke(e);
+            Reconnect(sseMessage.Retry);
         }
         catch (Exception e)
         {
-            Debug.LogException(e);
-
             // Most likely the client failed to establish a connection with the server
             OnError?.Invoke(e);
             Reconnect(sseMessage.Retry);
@@ -121,11 +131,15 @@ public class SseClient : IDisposable
 
     private void Reconnect(int retryTimeout = 0)
     {
+        if (IsClosed)
+            return;
+
         if (_retryAttempts >= _maxRetry)
         {
-            Close();
+            Dispose();
             return;
         }
+
 
         if (retryTimeout <= 0)
         {
@@ -137,14 +151,16 @@ public class SseClient : IDisposable
         _retryTimer?.Dispose();
 
         _retryTimer = new Timer(retryTimeout);
+        _retryTimer.AutoReset = false;
         _retryTimer.Elapsed += (_, _) =>
         {
             _retryAttempts++;
             Init();
         };
+        _retryTimer.Start();
     }
 
-    private void Close()
+    public void Dispose()
     {
         if (IsClosed)
         {
@@ -152,21 +168,14 @@ public class SseClient : IDisposable
         }
 
         IsClosed = true;
-
         OnMessage = null;
         OnError = null;
-
-        OnClose?.Invoke();
-    }
-
-    public void Dispose()
-    {
-        Close();
 
         _cancellationTokenSource.Cancel();
         _retryTimer?.Dispose();
         _stream?.Dispose();
-        _httpClient?.CancelPendingRequests();
-        _httpClient?.Dispose();
+
+        OnClose?.Invoke();
+        OnClose = null;
     }
 }
