@@ -11,7 +11,6 @@ using Timer = System.Timers.Timer;
 
 public class SseClient : IDisposable
 {
-    private static readonly HttpClient SHARED_CLIENT = new();
     private static readonly List<int> DEFAULT_RETRY_TIMEOUTS = new() { 200, 300, 500, 1000, 1200, 1500, 2000 };
     private static readonly Regex LINE_REGEX = new(@"^(\w+)[\s\:]+(.*)?$", RegexOptions.Compiled);
 
@@ -37,7 +36,7 @@ public class SseClient : IDisposable
     {
         _uri = new Uri(url);
         _maxRetry = maxRetry;
-        _httpClient = httpClient ?? SHARED_CLIENT;
+        _httpClient = httpClient ?? new();
 
         Init();
 
