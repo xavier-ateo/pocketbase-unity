@@ -11,6 +11,7 @@ public class PocketBase
 {
     public HttpClient HttpClient { get; }
     public AuthStore AuthStore { get; }
+    public CollectionService Collections { get; }
     public RealtimeService Realtime { get; }
 
     private readonly string _baseUrl;
@@ -26,6 +27,7 @@ public class PocketBase
         AuthStore = authStore ?? new();
         HttpClient = httpClient ?? new();
 
+        Collections = new CollectionService(this);
         Realtime = new RealtimeService(this);
 
         _baseUrl = baseUrl;
