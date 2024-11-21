@@ -96,7 +96,7 @@ public class RecordService : BaseCrudService
         string id,
         object body = null,
         Dictionary<string, object> query = null,
-        List<MultipartFormFileSection> files = null,
+        List<IMultipartFormSection> files = null,
         Dictionary<string, string> headers = null,
         string expand = null, string fields = null)
     {

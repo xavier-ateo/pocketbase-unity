@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
+using UnityEngine;
 using UnityEngine.Networking;
 using static UnityEngine.Networking.UnityWebRequest.Result;
 
@@ -53,7 +55,7 @@ public class PocketBase
         Dictionary<string, string> headers = null,
         Dictionary<string, object> query = null,
         object body = null,
-        List<MultipartFormFileSection> files = null)
+        List<IMultipartFormSection> files = null)
     {
         Uri url = BuildUrl(path, query);
 
@@ -149,9 +151,9 @@ public class PocketBase
 
         if (headers is { Count: > 0 })
         {
-            foreach (var header in headers)
+            foreach (var (key, value) in headers)
             {
-                request.SetRequestHeader(header.Key, header.Value);
+                request.SetRequestHeader(key, value);
             }
         }
 
@@ -170,10 +172,34 @@ public class PocketBase
         Uri url,
         Dictionary<string, string> headers,
         object body,
-        List<MultipartFormFileSection> files)
+        List<IMultipartFormSection> files)
     {
-        // TODO: implement MultipartRequest
-        return null;
+        List<IMultipartFormSection> formData = new();
+
+        if (body is not null)
+        {
+            string json = JsonConvert.SerializeObject(body);
+            formData.Add(new MultipartFormDataSection("@jsonPayload", json));
+        }
+
+        if (files?.Count > 0)
+        {
+            formData.AddRange(files);
+        }
+
+        var request = UnityWebRequest.Post(url, formData);
+        // overriding the method to be able to use PATCH
+        request.method = method;
+        
+        if (headers is { Count: > 0 })
+        {
+            foreach (var (key, value) in headers)
+            {
+                request.SetRequestHeader(key, value);
+            }
+        }
+
+        return request;
     }
 }
 

@@ -154,7 +154,7 @@ public abstract class BaseCrudService : BaseService
     public Task<T> Create<T>(
         object body,
         Dictionary<string, object> query = null,
-        List<MultipartFormFileSection> files = null,
+        List<IMultipartFormSection> files = null,
         Dictionary<string, string> headers = null,
         string expand = null,
         string fields = null)
@@ -179,7 +179,7 @@ public abstract class BaseCrudService : BaseService
         string id,
         object body = null,
         Dictionary<string, object> query = null,
-        List<MultipartFormFileSection> files = null,
+        List<IMultipartFormSection> files = null,
         Dictionary<string, string> headers = null,
         string expand = null,
         string fields = null)
@@ -309,7 +309,7 @@ public abstract class BaseCrudService<T> : BaseCrudService
     public Task<T> Create(
         object body,
         Dictionary<string, object> query = null,
-        List<MultipartFormFileSection> files = null,
+        List<IMultipartFormSection> files = null,
         Dictionary<string, string> headers = null,
         string expand = null,
         string fields = null)
@@ -328,7 +328,7 @@ public abstract class BaseCrudService<T> : BaseCrudService
         string id,
         object body = null,
         Dictionary<string, object> query = null,
-        List<MultipartFormFileSection> files = null,
+        List<IMultipartFormSection> files = null,
         Dictionary<string, string> headers = null,
         string expand = null,
         string fields = null)
