@@ -215,3 +215,146 @@ public abstract class BaseCrudService : BaseService
         );
     }
 }
+
+/// <summary>
+/// Provides a generic base implementation for CRUD (Create, Read, Update, Delete) operations.
+/// </summary>
+/// <remarks>
+/// The generic version simplifies creating type-specific services by removing the need to specify the type parameter
+/// in every method call.
+/// </remarks>
+/// <typeparam name="T">The type of entity being managed by the CRUD service.</typeparam>
+public abstract class BaseCrudService<T> : BaseCrudService
+{
+    protected BaseCrudService(PocketBase client) : base(client)
+    {
+    }
+
+    public Task<List<T>> GetFullList(
+        int batch = 500,
+        string expand = null,
+        string filter = null,
+        string sort = null,
+        string fields = null,
+        Dictionary<string, object> query = null,
+        Dictionary<string, string> headers = null)
+    {
+        return base.GetFullList<T>(
+            batch,
+            expand,
+            filter,
+            sort,
+            fields,
+            query,
+            headers
+        );
+    }
+
+    public Task<ResultList<T>> GetList(
+        int page = 1,
+        int perPage = 30,
+        bool skipTotal = false,
+        string expand = null,
+        string filter = null,
+        string sort = null,
+        string fields = null,
+        Dictionary<string, object> query = null,
+        Dictionary<string, string> headers = null)
+    {
+        return base.GetList<T>(
+            page,
+            perPage,
+            skipTotal,
+            expand,
+            filter,
+            sort,
+            fields,
+            query,
+            headers
+        );
+    }
+
+    public Task<T> GetOne(
+        string id,
+        string expand = null,
+        string fields = null,
+        Dictionary<string, object> query = null,
+        Dictionary<string, string> headers = null)
+    {
+        return base.GetOne<T>(
+            id,
+            expand,
+            fields,
+            query,
+            headers
+        );
+    }
+
+    public Task<T> GetFirstListItem(
+        string filter,
+        string expand = null,
+        string fields = null,
+        Dictionary<string, object> query = null,
+        Dictionary<string, string> headers = null)
+    {
+        return base.GetFirstListItem<T>(
+            filter,
+            expand,
+            fields,
+            query,
+            headers
+        );
+    }
+
+    public Task<T> Create(
+        object body,
+        Dictionary<string, object> query = null,
+        List<MultipartFormFileSection> files = null,
+        Dictionary<string, string> headers = null,
+        string expand = null,
+        string fields = null)
+    {
+        return base.Create<T>(
+            body,
+            query,
+            files,
+            headers,
+            expand,
+            fields
+        );
+    }
+
+    public Task<T> Update(
+        string id,
+        object body = null,
+        Dictionary<string, object> query = null,
+        List<MultipartFormFileSection> files = null,
+        Dictionary<string, string> headers = null,
+        string expand = null,
+        string fields = null)
+    {
+        return base.Update<T>(
+            id,
+            body,
+            query,
+            files,
+            headers,
+            expand,
+            fields
+        );
+    }
+
+    public new Task Delete(
+        string id,
+        object body = null,
+        Dictionary<string, object> query = null,
+        Dictionary<string, string> headers = null)
+    {
+        return base.Delete(
+            id,
+            body,
+            query,
+            headers
+        );
+    }
+}
