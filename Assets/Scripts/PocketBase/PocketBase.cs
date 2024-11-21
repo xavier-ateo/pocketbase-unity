@@ -18,6 +18,7 @@ public class PocketBase
     public HealthService Health { get; }
     public LogService Logs { get; }
     public RealtimeService Realtime { get; }
+    public SettingsService Settings { get; }
 
     private readonly string _baseUrl;
     private readonly string _lang;
@@ -38,6 +39,7 @@ public class PocketBase
         Health = new HealthService(this);
         Logs = new LogService(this);
         Realtime = new RealtimeService(this);
+        Settings = new SettingsService(this);
 
         _baseUrl = baseUrl;
         _lang = lang;
