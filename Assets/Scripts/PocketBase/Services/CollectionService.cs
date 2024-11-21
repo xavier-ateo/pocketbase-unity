@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 /// Usually shouldn't be initialized manually and instead
 /// <see cref="PocketBase.Collections"/> should be used.
 /// </remarks>
-public class CollectionService : BaseCrudService
+public class CollectionService : BaseCrudService<CollectionModel>
 {
     protected override string BaseCrudPath => "/api/collections";
 
