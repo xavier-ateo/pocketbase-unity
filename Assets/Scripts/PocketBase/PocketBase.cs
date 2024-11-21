@@ -16,6 +16,7 @@ public class PocketBase
     public CollectionService Collections { get; }
     public FileService Files { get; }
     public HealthService Health { get; }
+    public LogService Logs { get; }
     public RealtimeService Realtime { get; }
 
     private readonly string _baseUrl;
@@ -35,6 +36,7 @@ public class PocketBase
         Collections = new CollectionService(this);
         Files = new FileService(this);
         Health = new HealthService(this);
+        Logs = new LogService(this);
         Realtime = new RealtimeService(this);
 
         _baseUrl = baseUrl;
