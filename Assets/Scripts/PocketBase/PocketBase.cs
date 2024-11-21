@@ -12,6 +12,7 @@ public class PocketBase
 {
     public HttpClient HttpClient { get; }
     public AuthStore AuthStore { get; }
+    public AdminService Admins { get; }
     public CollectionService Collections { get; }
     public RealtimeService Realtime { get; }
 
@@ -28,6 +29,7 @@ public class PocketBase
         AuthStore = authStore ?? new();
         HttpClient = httpClient ?? new();
 
+        Admins = new AdminService(this);
         Collections = new CollectionService(this);
         Realtime = new RealtimeService(this);
 
