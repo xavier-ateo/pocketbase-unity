@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
-using UnityEngine;
 using UnityEngine.Networking;
 using static UnityEngine.Networking.UnityWebRequest.Result;
 
@@ -144,7 +143,7 @@ public class PocketBase
         if (body is not null)
         {
             string jsonBody = JsonConvert.SerializeObject(body);
-            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.uploadHandler.contentType = "application/json";
         }
