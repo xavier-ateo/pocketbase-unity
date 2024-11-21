@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class PocketBaseExample : MonoBehaviour
 {
@@ -148,10 +149,17 @@ public class PocketBaseExample : MonoBehaviour
 
         try
         {
-            var result = await _pocketBase.Collection("post").Update<Post>("rssao1gsgwiuc6m", new Post
-            {
-                Content = newContent
-            });
+            var result = await _pocketBase.Collection(collectionIdOrName: "post").Update<Post>(
+                id: "rssao1gsgwiuc6m",
+                body: new Post
+                {
+                    Content = newContent
+                },
+                files: new()
+                {
+                    new MultipartFormFileSection("cover", new byte[] { 1, 2, 3, 4, 5 }, "new_cover.png", "image/png")
+                }
+            );
             Debug.Log(JsonConvert.SerializeObject(result, Formatting.Indented));
         }
         catch (ClientException e)
@@ -165,10 +173,20 @@ public class PocketBaseExample : MonoBehaviour
     {
         try
         {
-            var record = await _pocketBase.Collection("post").Create<Post>(new Post
-            {
-                Content = "<p>Hello, World!</p>"
-            });
+            var record = await _pocketBase.Collection("post").Create<Post>(
+                body: new Post
+                {
+                    Content = "<p>Hello, World!</p>"
+                },
+                files: new()
+                {
+                    new MultipartFormFileSection(
+                        name: "cover",
+                        data: new byte[] { 1, 2, 3, 4, 5 },
+                        fileName: "cover.png",
+                        contentType: "image/png")
+                }
+            );
             Debug.Log(JsonConvert.SerializeObject(record, Formatting.Indented));
         }
         catch (ClientException e)
