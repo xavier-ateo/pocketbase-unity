@@ -31,14 +31,14 @@ public class CollectionService : BaseCrudService<CollectionModel>
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        body ??= new Dictionary<string, object>();
-        body.TryAddNonNull("collections", collections);
-        body.TryAddNonNull("deleteMissing", deleteMissing);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAddNonNull("collections", collections);
+        enrichedBody.TryAddNonNull("deleteMissing", deleteMissing);
 
         return _client.Send<Void>(
             $"{BaseCrudPath}/import",
             method:"PUT",
-            body: body,
+            body: enrichedBody,
             query: query,
             headers: headers
         );
