@@ -458,15 +458,15 @@ public class RecordService : BaseCrudService
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        query ??= new();
-        query.TryAddNonNull("expand", expand);
-        query.TryAddNonNull("fields", fields);
+        Dictionary<string, object> enrichedQuery = new(query ?? new());
+        enrichedQuery.TryAddNonNull("expand", expand);
+        enrichedQuery.TryAddNonNull("fields", fields);
 
         var authResult = await _client.Send<RecordAuth>(
             $"{BaseCollectionPath}/auth-refresh",
             method: "POST",
             body: body,
-            query: query,
+            query: enrichedQuery,
             headers: headers
         );
 

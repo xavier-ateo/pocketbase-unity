@@ -97,7 +97,7 @@ public class AdminService : BaseCrudService<AdminModel>
             $"{BaseCrudPath}/auth-with-password",
             method: "POST",
             body: enrichedBody,
-            query: query,
+            query: enrichedBody,
             headers: headers
         );
 

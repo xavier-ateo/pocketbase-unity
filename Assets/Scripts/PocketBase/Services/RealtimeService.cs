@@ -48,14 +48,14 @@ public class RealtimeService : BaseService
     {
         var key = topic;
 
-        query ??= new();
-        query.TryAddNonNull("expand", expand);
-        query.TryAddNonNull("filter", filter);
-        query.TryAddNonNull("fields", fields);
+        Dictionary<string, object> enrichedQuery = new(query ?? new());
+        enrichedQuery.TryAddNonNull("expand", expand);
+        enrichedQuery.TryAddNonNull("filter", filter);
+        enrichedQuery.TryAddNonNull("fields", fields);
 
         // Serialize and append the topic options (if any)
         Dictionary<string, object> options = new();
-        options.TryAddNonNull("query", query);
+        options.TryAddNonNull("query", enrichedQuery);
         options.TryAddNonNull("headers", headers);
 
         if (options.Count > 0)

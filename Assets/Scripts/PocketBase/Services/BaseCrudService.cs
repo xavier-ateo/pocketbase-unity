@@ -63,9 +63,7 @@ public abstract class BaseCrudService : BaseService
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        query ??= new();
-
-        Dictionary<string, object> enrichedQuery = new(query);
+        Dictionary<string, object> enrichedQuery = new(query ?? new());
         enrichedQuery.TryAdd("page", page);
         enrichedQuery.TryAdd("perPage", perPage);
         enrichedQuery.TryAdd("skipTotal", skipTotal);
@@ -103,9 +101,7 @@ public abstract class BaseCrudService : BaseService
             );
         }
 
-        query ??= new();
-
-        Dictionary<string, object> enrichedQuery = new(query);
+        Dictionary<string, object> enrichedQuery = new(query ?? new());
         enrichedQuery.TryAddNonNull("expand", expand);
         enrichedQuery.TryAddNonNull("fields", fields);
 
@@ -159,9 +155,7 @@ public abstract class BaseCrudService : BaseService
         string expand = null,
         string fields = null)
     {
-        query ??= new();
-
-        Dictionary<string, object> enrichedQuery = new(query);
+        Dictionary<string, object> enrichedQuery = new(query ?? new());
         enrichedQuery.TryAddNonNull("expand", expand);
         enrichedQuery.TryAddNonNull("fields", fields);
 
@@ -184,9 +178,7 @@ public abstract class BaseCrudService : BaseService
         string expand = null,
         string fields = null)
     {
-        query ??= new();
-
-        Dictionary<string, object> enrichedQuery = new(query);
+        Dictionary<string, object> enrichedQuery = new(query ?? new());
         enrichedQuery.TryAddNonNull("expand", expand);
         enrichedQuery.TryAddNonNull("fields", fields);
 

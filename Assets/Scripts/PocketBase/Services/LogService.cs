@@ -25,15 +25,15 @@ public sealed class LogService : BaseService
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        query ??= new();
-        query.TryAddNonNull("page", page);
-        query.TryAddNonNull("perPage", perPage);
-        query.TryAddNonNull("search", filter);
-        query.TryAddNonNull("sort", sort);
+        Dictionary<string, object> enrichedQuery = new(query ?? new());
+        enrichedQuery.TryAddNonNull("page", page);
+        enrichedQuery.TryAddNonNull("perPage", perPage);
+        enrichedQuery.TryAddNonNull("search", filter);
+        enrichedQuery.TryAddNonNull("sort", sort);
 
         return _client.Send<ResultList<LogModel>>(
             "api/logs",
-            query: query,
+            query: enrichedQuery,
             headers: headers
         );
     }

@@ -35,18 +35,18 @@ public class FileService : BaseService
             return EmptyUri;
         }
 
-        query ??= new();
-        query.TryAddNonNull("thumb", thumb);
-        query.TryAddNonNull("token", token);
+        Dictionary<string, object> enrichedQuery = new(query ?? new());
+        enrichedQuery.TryAddNonNull("thumb", thumb);
+        enrichedQuery.TryAddNonNull("token", token);
 
         if (download is true)
         {
-            query["download"] = string.Empty;
+            enrichedQuery["download"] = string.Empty;
         }
 
         return _client.BuildUrl(
             $"/api/files/{HttpUtility.UrlEncode(record.CollectionId)}/{HttpUtility.UrlEncode(record.Id)}/{HttpUtility.UrlEncode(fileName)}",
-            query
+            enrichedQuery
         );
     }
 
