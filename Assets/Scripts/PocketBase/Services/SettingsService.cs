@@ -54,13 +54,13 @@ public class SettingsService : BaseService
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        body ??= new();
-        body.TryAddNonNull("filesystem", filesystem);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAddNonNull("filesystem", filesystem);
 
         return _client.Send<Void>(
             "/api/settings/test/s3",
             method: "POST",
-            body: body,
+            body: enrichedBody,
             query: query,
             headers: headers
         );
@@ -82,14 +82,14 @@ public class SettingsService : BaseService
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        body ??= new();
-        body.TryAddNonNull("email", toEmail);
-        body.TryAddNonNull("template", template);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAddNonNull("email", toEmail);
+        enrichedBody.TryAddNonNull("template", template);
 
         return _client.Send<Void>(
             "/api/settings/test/email",
             method: "POST",
-            body: body,
+            body: enrichedBody,
             query: query,
             headers: headers
         );
@@ -108,17 +108,17 @@ public class SettingsService : BaseService
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        body ??= new();
-        body.TryAddNonNull("clientId", clientId);
-        body.TryAddNonNull("teamId", teamId);
-        body.TryAddNonNull("keyId", keyId);
-        body.TryAddNonNull("privateKey", privateKey);
-        body.TryAddNonNull("duration", duration);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAddNonNull("clientId", clientId);
+        enrichedBody.TryAddNonNull("teamId", teamId);
+        enrichedBody.TryAddNonNull("keyId", keyId);
+        enrichedBody.TryAddNonNull("privateKey", privateKey);
+        enrichedBody.TryAddNonNull("duration", duration);
 
         return _client.Send<AppleClientSecret>(
             "/api/settings/apple/generate-client-secret",
             method: "POST",
-            body: body,
+            body: enrichedBody,
             query: query,
             headers: headers
         );

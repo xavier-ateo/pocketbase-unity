@@ -85,18 +85,18 @@ public class AdminService : BaseCrudService<AdminModel>
     public async Task<AdminAuth> AuthWithPassword(
         string email,
         string password,
-        Dictionary<string, string> body = null,
+        Dictionary<string, object> body = null,
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        body ??= new();
-        body.TryAdd("email", email);
-        body.TryAdd("password", password);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAdd("email", email);
+        enrichedBody.TryAdd("password", password);
 
         var authResult = await _client.Send<AdminAuth>(
             $"{BaseCrudPath}/auth-with-password",
             method: "POST",
-            body: body,
+            body: enrichedBody,
             query: query,
             headers: headers
         );
@@ -140,13 +140,13 @@ public class AdminService : BaseCrudService<AdminModel>
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        body ??= new();
-        body.TryAdd("email", email);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAdd("email", email);
 
         return _client.Send<Void>(
             $"{BaseCrudPath}/request-password-reset",
             method: "POST",
-            body: body,
+            body: enrichedBody,
             query: query,
             headers: headers
         );
@@ -163,15 +163,15 @@ public class AdminService : BaseCrudService<AdminModel>
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        body ??= new();
-        body.TryAdd("token", passwordResetToken);
-        body.TryAdd("password", password);
-        body.TryAdd("passwordConfirm", passwordConfirm);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAdd("token", passwordResetToken);
+        enrichedBody.TryAdd("password", password);
+        enrichedBody.TryAdd("passwordConfirm", passwordConfirm);
 
         return _client.Send<Void>(
             $"{BaseCrudPath}/confirm-password-reset",
             method: "POST",
-            body: body,
+            body: enrichedBody,
             query: query,
             headers: headers
         );

@@ -165,23 +165,23 @@ public class RecordService : BaseCrudService
         string password,
         string expand = null,
         string fields = null,
-        Dictionary<string, string> body = null,
+        Dictionary<string, object> body = null,
         Dictionary<string, string> headers = null,
         Dictionary<string, object> query = null)
     {
-        body ??= new();
-        body.TryAdd("identity", usernameOrEmail);
-        body.TryAdd("password", password);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAdd("identity", usernameOrEmail);
+        enrichedBody.TryAdd("password", password);
 
-        query ??= new();
-        query.TryAddNonNull("expand", expand);
-        query.TryAddNonNull("fields", fields);
+        Dictionary<string, object> enrichedQuery = new(query ?? new());
+        enrichedQuery.TryAddNonNull("expand", expand);
+        enrichedQuery.TryAddNonNull("fields", fields);
 
         var authResult = await _client.Send<RecordAuth>(
             $"{BaseCollectionPath}/auth-with-password",
             method: "POST",
-            body: body,
-            query: query,
+            body: enrichedBody,
+            query: enrichedQuery,
             headers: headers
         );
 
@@ -199,13 +199,13 @@ public class RecordService : BaseCrudService
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        body ??= new();
-        body.TryAdd("email", email);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAdd("email", email);
 
         return _client.Send<Void>(
             $"{BaseCollectionPath}/request-password-reset",
             method: "POST",
-            body: body,
+            body: enrichedBody,
             query: query,
             headers: headers
         );
@@ -222,15 +222,15 @@ public class RecordService : BaseCrudService
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        body ??= new();
-        body.TryAdd("token", passwordResetToken);
-        body.TryAdd("password", password);
-        body.TryAdd("passwordConfirm", passwordConfirm);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAdd("token", passwordResetToken);
+        enrichedBody.TryAdd("password", password);
+        enrichedBody.TryAdd("passwordConfirm", passwordConfirm);
 
         return _client.Send<Void>(
             $"{BaseCollectionPath}/confirm-password-reset",
             method: "POST",
-            body: body,
+            body: enrichedBody, 
             query: query,
             headers: headers
         );
@@ -245,16 +245,13 @@ public class RecordService : BaseCrudService
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        body ??= new();
-        body.TryAdd("email", email);
-
-        Debug.Log(email);
-        Debug.Log(JsonConvert.SerializeObject(body, Formatting.Indented));
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAdd("email", email);
 
         return _client.Send<Void>(
             $"{BaseCollectionPath}/request-verification",
             method: "POST",
-            body: body,
+            body: enrichedBody,
             query: query,
             headers: headers
         );
@@ -272,13 +269,13 @@ public class RecordService : BaseCrudService
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        body ??= new();
-        body.TryAdd("token", verificationToken);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAdd("token", verificationToken);
 
         await _client.Send<Void>(
             $"{BaseCollectionPath}/confirm-verification",
             method: "POST",
-            body: body,
+            body: enrichedBody,
             query: query,
             headers: headers
         );
@@ -312,13 +309,13 @@ public class RecordService : BaseCrudService
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        body ??= new();
-        body.TryAdd("newEmail", newEmail);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAdd("newEmail", newEmail);
 
         return _client.Send<Void>(
             $"{BaseCollectionPath}/request-email-change",
             method: "POST",
-            body: body,
+            body: enrichedBody,
             query: query,
             headers: headers
         );
@@ -338,14 +335,14 @@ public class RecordService : BaseCrudService
         Dictionary<string, object> query = null,
         Dictionary<string, string> headers = null)
     {
-        body ??= new();
-        body.TryAdd("token", emailChangeToken);
-        body.TryAdd("password", userPassword);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAdd("token", emailChangeToken);
+        enrichedBody.TryAdd("password", userPassword);
 
         await _client.Send<Void>(
             $"{BaseCollectionPath}/confirm-email-change",
             method: "POST",
-            body: body,
+            body: enrichedBody,
             query: query,
             headers: headers
         );
@@ -423,22 +420,22 @@ public class RecordService : BaseCrudService
         string expand = null,
         string fields = null)
     {
-        body ??= new();
-        body.TryAdd("provider", provider);
-        body.TryAdd("code", code);
-        body.TryAdd("codeVerifier", codeVerifier);
-        body.TryAdd("redirectUrl", redirectUrl);
-        body.TryAdd("createData", createData);
+        Dictionary<string, object> enrichedBody = new(body ?? new());
+        enrichedBody.TryAdd("provider", provider);
+        enrichedBody.TryAdd("code", code);
+        enrichedBody.TryAdd("codeVerifier", codeVerifier);
+        enrichedBody.TryAdd("redirectUrl", redirectUrl);
+        enrichedBody.TryAdd("createData", createData);
 
-        query ??= new();
-        query.TryAddNonNull("expand", expand);
-        query.TryAddNonNull("fields", fields);
+        Dictionary<string, object> enrichedQuery = new(query ?? new());
+        enrichedQuery.TryAddNonNull("expand", expand);
+        enrichedQuery.TryAddNonNull("fields", fields);
 
         var authResult = await _client.Send<RecordAuth>(
             $"{BaseCollectionPath}/auth-with-oauth2",
             method: "POST",
-            body: body,
-            query: query,
+            body: enrichedBody,
+            query: enrichedQuery,
             headers: headers
         );
 
