@@ -51,6 +51,8 @@ public class WebGLSseClient : IDisposable
 
         _connectionCoroutine = CoroutineRunner.StartCoroutine(ConnectCoroutine());
     }
+    
+    public void Close() => Dispose();
 
     private IEnumerator ConnectCoroutine()
     {
@@ -89,11 +91,11 @@ public class WebGLSseClient : IDisposable
                 continue;
             }
 
-            yield return ProcessStreamedResponse(request);
+            yield return ProcessStreamedResponseCoroutine(request);
         }
     }
 
-    private IEnumerator ProcessStreamedResponse(UnityWebRequest request)
+    private IEnumerator ProcessStreamedResponseCoroutine(UnityWebRequest request)
     {
         while (!_isClosed && request.result is InProgress)
         {
