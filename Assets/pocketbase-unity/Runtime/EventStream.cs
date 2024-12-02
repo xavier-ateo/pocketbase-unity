@@ -1,43 +1,46 @@
 using System;
 using System.Collections.Generic;
 
-public class EventStream<T>
+namespace PocketBaseSdk
 {
-    private readonly List<T> _history = new();
-    private event Action<T> OnEvent;
-
-    public void Invoke(T eventData)
+    public class EventStream<T>
     {
-        _history.Add(eventData);
-        OnEvent?.Invoke(eventData);
-    }
+        private readonly List<T> _history = new();
+        private event Action<T> OnEvent;
 
-    public void Subscribe(Action<T> handler, bool replayHistory = true)
-    {
-        if (replayHistory)
+        public void Invoke(T eventData)
         {
-            foreach (var historicalEvent in _history)
-            {
-                handler(historicalEvent);
-            }
+            _history.Add(eventData);
+            OnEvent?.Invoke(eventData);
         }
 
-        OnEvent += handler;
-    }
+        public void Subscribe(Action<T> handler, bool replayHistory = true)
+        {
+            if (replayHistory)
+            {
+                foreach (var historicalEvent in _history)
+                {
+                    handler(historicalEvent);
+                }
+            }
 
-    public void ClearHistory()
-    {
-        _history.Clear();
-    }
+            OnEvent += handler;
+        }
 
-    public void ClearSubscribers()
-    {
-        OnEvent = null;
-    }
+        public void ClearHistory()
+        {
+            _history.Clear();
+        }
 
-    public void Clear()
-    {
-        ClearHistory();
-        ClearSubscribers();
+        public void ClearSubscribers()
+        {
+            OnEvent = null;
+        }
+
+        public void Clear()
+        {
+            ClearHistory();
+            ClearSubscribers();
+        }
     }
 }

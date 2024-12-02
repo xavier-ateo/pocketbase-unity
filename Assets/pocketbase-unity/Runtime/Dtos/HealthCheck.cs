@@ -2,15 +2,19 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-[Serializable]
-public class HealthCheck
+namespace PocketBaseSdk
 {
-    [JsonProperty("code")]
-    public int Code { get; set; }
+    [Serializable]
 
-    [JsonProperty("message")]
-    public string Message { get; set; }
+    public class HealthCheck
+    {
+        [JsonProperty("code")]
+        public int Code { get; set; }
 
-    [JsonProperty("data")]
-    public Dictionary<string, object> Data { get; set; } = new();
+        [JsonProperty("message")]
+        public string Message { get; set; }
+
+        [JsonProperty("data")]
+        public Dictionary<string, object> Data { get; set; } = new();
+    }
 }

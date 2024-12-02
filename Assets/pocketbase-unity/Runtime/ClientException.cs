@@ -2,39 +2,42 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-[Serializable]
-public class ClientException : Exception
+namespace PocketBaseSdk
 {
-    public Uri URL { get; }
-    public int StatusCode { get; }
-    public Dictionary<string, object> Response { get; }
-    public object OriginalError { get; }
-
-    public ClientException(
-        Uri url,
-        int statusCode = 0,
-        Dictionary<string, object> response = null,
-        object originalError = null)
-        : base(response?["message"]?.ToString() ?? "Client Exception")
+    [Serializable]
+    public class ClientException : Exception
     {
-        URL = url;
-        StatusCode = statusCode;
-        Response = response ?? new();
-        OriginalError = originalError;
-    }
+        public Uri URL { get; }
+        public int StatusCode { get; }
+        public Dictionary<string, object> Response { get; }
+        public object OriginalError { get; }
 
-    private string FormatMessage()
-    {
-        Dictionary<string, object> data = new()
+        public ClientException(
+            Uri url,
+            int statusCode = 0,
+            Dictionary<string, object> response = null,
+            object originalError = null)
+            : base(response?["message"]?.ToString() ?? "Client Exception")
         {
-            ["uri"] = URL,
-            ["statusCode"] = StatusCode,
-            ["response"] = Response,
-            ["originalError"] = OriginalError
-        };
+            URL = url;
+            StatusCode = statusCode;
+            Response = response ?? new();
+            OriginalError = originalError;
+        }
 
-        return $"Client Exception: {JsonConvert.SerializeObject(data, Formatting.Indented)}";
+        private string FormatMessage()
+        {
+            Dictionary<string, object> data = new()
+            {
+                ["uri"] = URL,
+                ["statusCode"] = StatusCode,
+                ["response"] = Response,
+                ["originalError"] = OriginalError
+            };
+
+            return $"Client Exception: {JsonConvert.SerializeObject(data, Formatting.Indented)}";
+        }
+
+        public override string ToString() => FormatMessage();
     }
-
-    public override string ToString() => FormatMessage();
 }

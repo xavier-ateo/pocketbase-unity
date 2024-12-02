@@ -2,21 +2,25 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-[Serializable]
-public class ResultList<T>
+namespace PocketBaseSdk
 {
-    [JsonProperty("page")]
-    public int Page { get; private set; }
+    [Serializable]
 
-    [JsonProperty("perPage")]
-    public int PerPage { get; private set; }
+    public class ResultList<T>
+    {
+        [JsonProperty("page")]
+        public int Page { get; private set; }
 
-    [JsonProperty("totalPages")]
-    public int TotalPages { get; private set; }
+        [JsonProperty("perPage")]
+        public int PerPage { get; private set; }
 
-    [JsonProperty("totalItems")]
-    public int TotalItems { get; private set; }
-    
-    [JsonProperty("items")]
-    public List<T> Items { get; private set; }
+        [JsonProperty("totalPages")]
+        public int TotalPages { get; private set; }
+
+        [JsonProperty("totalItems")]
+        public int TotalItems { get; private set; }
+
+        [JsonProperty("items")]
+        public List<T> Items { get; private set; }
+    }
 }
