@@ -1,12 +1,16 @@
 using System;
 using Newtonsoft.Json;
 
-[Serializable]
-public class RecordSubscriptionEvent<T>
+namespace PocketBaseSdk
 {
-    [JsonProperty("action")]
-    public string Action { get; set; }
-    
-    [JsonProperty("record")]
-    public T Record { get; set; }
+    [Serializable]
+
+    public class RecordSubscriptionEvent<T>
+    {
+        [JsonProperty("action")]
+        public string Action { get; set; }
+
+        [JsonProperty("record")]
+        public T Record { get; set; }
+    }
 }

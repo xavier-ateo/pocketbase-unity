@@ -4,72 +4,75 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
-/// <summary>
-/// SyncQueue is a very rudimentary queue of async operations that will be processed sequential/synchronous.
-/// </summary>
-public class SyncQueue
+namespace PocketBaseSdk
 {
-    public delegate Task AsyncOperation();
-
-    private readonly List<AsyncOperation> _operations = new();
-    private readonly Action _onComplete;
-
-    public SyncQueue(Action onComplete = null)
-    {
-        _onComplete = onComplete;
-    }
-
     /// <summary>
-    /// Enqueue appends an async operation to the queue and executes it if it is the only one.
+    /// SyncQueue is a very rudimentary queue of async operations that will be processed sequential/synchronous.
     /// </summary>
-    public void Enqueue(AsyncOperation operation)
+    public class SyncQueue
     {
-        _operations.Add(operation);
+        public delegate Task AsyncOperation();
 
-        if (_operations.Count == 1)
-        {
-            // start processing
-            Dequeue();
-        }
-    }
+        private readonly List<AsyncOperation> _operations = new();
+        private readonly Action _onComplete;
 
-    /// <summary>
-    /// Dequeue starts the queue processing.
-    /// Each processed operation is removed from the queue once it completes.
-    /// </summary>
-    private async void Dequeue()
-    {
-        if (!_operations.Any())
+        public SyncQueue(Action onComplete = null)
         {
-            return;
+            _onComplete = onComplete;
         }
 
-        try
+        /// <summary>
+        /// Enqueue appends an async operation to the queue and executes it if it is the only one.
+        /// </summary>
+        public void Enqueue(AsyncOperation operation)
         {
-            await _operations.First()();
-            _operations.RemoveAt(0);
+            _operations.Add(operation);
 
+            if (_operations.Count == 1)
+            {
+                // start processing
+                Dequeue();
+            }
+        }
+
+        /// <summary>
+        /// Dequeue starts the queue processing.
+        /// Each processed operation is removed from the queue once it completes.
+        /// </summary>
+        private async void Dequeue()
+        {
             if (!_operations.Any())
             {
-                if (_onComplete != null)
-                {
-                    _onComplete();
-                }
-
-                return; // no more operations
+                return;
             }
 
-            // proceed with the next operation from the queue
-            Dequeue();
-        }
-        catch (Exception e)
-        {
-            // Handle any exceptions from the async operation
-            // You might want to add proper exception handling here
-            _operations.RemoveAt(0);
-            Dequeue();
+            try
+            {
+                await _operations.First()();
+                _operations.RemoveAt(0);
 
-            Debug.LogException(e);
+                if (!_operations.Any())
+                {
+                    if (_onComplete != null)
+                    {
+                        _onComplete();
+                    }
+
+                    return; // no more operations
+                }
+
+                // proceed with the next operation from the queue
+                Dequeue();
+            }
+            catch (Exception e)
+            {
+                // Handle any exceptions from the async operation
+                // You might want to add proper exception handling here
+                _operations.RemoveAt(0);
+                Dequeue();
+
+                Debug.LogException(e);
+            }
         }
     }
 }

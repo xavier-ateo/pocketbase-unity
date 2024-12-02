@@ -1,18 +1,22 @@
 using System;
 using Newtonsoft.Json;
 
-[Serializable]
-public class RecordAuth
+namespace PocketBaseSdk
 {
-    public RecordAuth(string token, BaseAuthModel record)
+    [Serializable]
+
+    public class RecordAuth
     {
-        Token = token;
-        Record = record;
+        public RecordAuth(string token, BaseAuthModel record)
+        {
+            Token = token;
+            Record = record;
+        }
+
+        [JsonProperty("token")]
+        public string Token { get; private set; }
+
+        [JsonProperty("record")]
+        public BaseAuthModel Record { get; private set; }
     }
-
-    [JsonProperty("token")]
-    public string Token { get; private set; }
-
-    [JsonProperty("record")]
-    public BaseAuthModel Record { get; private set; }
 }

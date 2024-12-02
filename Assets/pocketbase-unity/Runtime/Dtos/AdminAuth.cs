@@ -1,12 +1,16 @@
 using System;
 using Newtonsoft.Json;
 
-[Serializable]
-public sealed class AdminAuth
+namespace PocketBaseSdk
 {
-    [JsonProperty("token")]
-    public string Token { get; set; }
+    [Serializable]
 
-    [JsonProperty("admin")]
-    public AdminModel Admin { get; set; }
+    public sealed class AdminAuth
+    {
+        [JsonProperty("token")]
+        public string Token { get; set; }
+
+        [JsonProperty("admin")]
+        public AdminModel Admin { get; set; }
+    }
 }

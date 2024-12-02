@@ -1,9 +1,13 @@
 using System;
 using Newtonsoft.Json;
 
-[Serializable]
-public class AppleClientSecret
+namespace PocketBaseSdk
 {
-    [JsonProperty("secret")]
-    string Secret { get; set; }
+    [Serializable]
+
+    public class AppleClientSecret
+    {
+        [JsonProperty("secret")]
+        string Secret { get; set; }
+    }
 }
