@@ -1,0 +1,18 @@
+{
+  "name": "com.sov3rain.pocketbase-unity",
+  "version": "0.22.0",
+  "displayName": "PocketBase SDK",
+  "description": "PocketBase Unity SDK",
+  "unity": "2022.3",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  },
+  "keywords": [
+    "pocketbase",
+    "unity",
+    "sdk"
+  ],
+  "author": {
+    "name": "Sov3rain"
+  }
+}
