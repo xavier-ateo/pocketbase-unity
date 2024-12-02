@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -10,7 +9,6 @@ using static UnityEngine.Networking.UnityWebRequest.Result;
 
 public class PocketBase
 {
-    public HttpClient HttpClient { get; }
     public AuthStore AuthStore { get; }
     public AdminService Admins { get; }
     public CollectionService Collections { get; }
@@ -27,11 +25,9 @@ public class PocketBase
     public PocketBase(
         string baseUrl,
         string lang = "en-US",
-        AuthStore authStore = null,
-        HttpClient httpClient = null)
+        AuthStore authStore = null)
     {
         AuthStore = authStore ?? new();
-        HttpClient = httpClient ?? new();
 
         Admins = new AdminService(this);
         Collections = new CollectionService(this);
