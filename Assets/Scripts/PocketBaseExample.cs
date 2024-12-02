@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
+using PocketBaseSdk;
 
 public class PocketBaseExample : MonoBehaviour
 {
