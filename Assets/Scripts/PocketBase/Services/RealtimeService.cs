@@ -230,7 +230,7 @@ public class RealtimeService : BaseService
         var completer = new TaskCompletionSource<bool>();
         string url = _client.BuildUrl("/api/realtime").AbsoluteUri;
 
-        _sse = new SseClient(url, httpClient: _client.HttpClient);
+        _sse = new SseClient(url);
         _sse.OnClose += () =>
         {
             Disconnect();
@@ -274,13 +274,15 @@ public class RealtimeService : BaseService
             Disconnect();
             completer.SetException(new Exception("failed to establish SSE connection", e));
         };
+        
+        _sse.Connect();
 
         return completer.Task;
     }
 
     private void Disconnect()
     {
-        _sse?.Dispose();
+        _sse?.Close();
         _sse = null;
         ClientId = string.Empty;
     }
