@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using PocketBaseSdk;
 
 public class Post : RecordModel
 {
