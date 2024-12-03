@@ -10,6 +10,8 @@ Unofficial Multi-platform Unity C# SDK for interacting with the [PocketBase Web 
   - [RecordModel](#recordmodel)
   - [Error handling](#error-handling)
   - [AuthStore](#authstore)
+  - [Binding filter parameters](#binding-filter-parameters)
+- [Services](#services)
 
 ## Supported Unity versions and platforms
 
@@ -245,3 +247,23 @@ var pocketBase = new PocketBase(
     authStore: AsyncAuthStore.PlayerPrefs
 );
 ```
+
+### Binding filter parameters
+
+The SDK comes with a helper `PocketBase.Filter(expr, params)` method to generate a filter string with placeholder parameters (`{paramName}`) populated from a `Dictionary<string, object>`.
+
+```csharp
+// the same as: "title ~ 'exa\\'mple' && created = '2023-10-18 18:20:00.123Z'"
+var filter = PocketBase.Filter(
+    "title ~ {:title} && created >= {:created}", 
+    new Dictionary<string, object>
+    {
+        ["title"] = "exa'mple",
+        ["created"] = DateTime.UtcNow
+    }
+);
+
+var record = await _pocketBase.Collection("example").GetList<RecordModel>(filter: filter);
+```
+
+## Services

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
@@ -102,6 +104,44 @@ namespace PocketBaseSdk
             {
                 return default;
             }
+        }
+
+        /// <summary>
+        /// Constructs a filter expression with placeholders populated from a map.<br/>
+        /// Placeholder parameters are defined with the <c>{:paramName}</c> notation.<br/>
+        /// </summary>
+        /// <remarks>
+        /// The following parameter values are supported:
+        /// <list type="bullet">
+        ///     <item>String (single quotes are auto escaped)</item>
+        ///     <item>Number</item>
+        ///     <item>Boolean</item>
+        ///     <item>DateTime</item>
+        ///     <item>null</item>
+        /// </list>
+        /// Everything else is converted to a string using JsonConvert.SerializeObject
+        /// </remarks>
+        public static string Filter(string expr, Dictionary<string, object> query = null)
+        {
+            if (query is not { Count: > 0 })
+            {
+                return expr;
+            }
+
+            foreach (var (key, value) in query)
+            {
+                object finalValue = value switch
+                {
+                    null or int or long or double or float or bool => value?.ToString(),
+                    DateTime dateTime => $"'{dateTime.ToUniversalTime():yyyy-MM-dd HH:mm:ss.fff}Z'",
+                    string str => $"'{str.Replace("'", "\\'")}'",
+                    _ => $"'{JsonConvert.SerializeObject(value).Replace("'", "\\'")}'"
+                };
+
+                expr = expr.Replace($"{{:{key}}}", finalValue?.ToString());
+            }
+
+            return expr;
         }
 
         public Uri BuildUrl(string path, Dictionary<string, object> queryParameters = null)
