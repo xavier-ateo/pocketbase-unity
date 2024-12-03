@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -31,7 +32,7 @@ namespace PocketBaseSdk
 
             return dictionary.TryAdd(key, value);
         }
-        
+
         public static void RemoveWhere<TKey, TValue>(
             this IDictionary<TKey, TValue> dictionary,
             Func<KeyValuePair<TKey, TValue>, bool> predicate)
@@ -42,5 +43,23 @@ namespace PocketBaseSdk
                 dictionary.Remove(key);
             }
         }
+
+        static TaskScheduler UnitySynchronizationContext => TaskScheduler.FromCurrentSynchronizationContext();
+
+        // Input void, output void
+        public static Task ContinueWithOnMainThread(this Task task, Action<Task> continuation) =>
+            task.ContinueWith(continuation, UnitySynchronizationContext);
+
+        // Input void, output result
+        public static Task<TResult> ContinueWithOnMainThread<TResult>(
+            this Task task,
+            Func<Task, TResult> continuation) =>
+            task.ContinueWith(continuation, UnitySynchronizationContext);
+
+        // Input value, output result
+        public static Task<TResult> ContinueWithOnMainThread<TInput, TResult>(
+            this Task<TInput> task,
+            Func<Task<TInput>, TResult> continuation) =>
+            task.ContinueWith(continuation, UnitySynchronizationContext);
     }
 }
