@@ -1,7 +1,5 @@
 # PocketBase Unity SDK
 
----
-
 Unofficial Multi-platform Unity C# SDK for interacting with the [PocketBase Web API](https://pocketbase.io/docs).
 
 - [Supported Unity versions and platforms](#supported-unity-versions-and-platforms)
@@ -48,19 +46,19 @@ public class PocketBaseExample : MonoBehaviour
     private async void Start()
     {
         _pocketBase = new PocketBase("http://127.0.0.1:8090");
-        
+
         // Authenticate as regular user
         var userData = await _pocketBase.Collection("users").AuthWithPassword("user@example.com", "password");
-        
+
         // List and filter "example" collection records
         var result = await _pocketBase.Collection("example").GetList<RecordModel>(
             page: 1,
             perPage: 20,
-            filter: "status = true && created >= \"2022-08-01\""
+            filter: "status = true && created >= \"2022-08-01\"",
             sort: "-created",
             expand: "someRelField"
         );
-        
+
         // Susbscribe to realtime "example" collection changes
         _pocketBase.Collection("example").Subscribe<RecordModel>("*", e =>
         {
@@ -105,7 +103,7 @@ public class PocketBaseExample : MonoBehaviour
                     contentType: "text/plain")
             }
         );
-        
+
         Debug.Log(record.Id);
     }
 }
@@ -151,6 +149,7 @@ All services return a standard Task object that can be awaited, so the error han
 ```csharp
 _pocketBase = new PocketBase("http://127.0.0.1:8090");
 
+// If you are using the async/await syntax:
 try
 {
     var userData = await _pocketBase.Collection("users").AuthWithPassword("user@example.com", "password");
@@ -160,6 +159,22 @@ catch (ClientException e)
 {
     Debug.LogError(e);
 }
+
+
+// Or if you are using the ContinueWithOnMainThread syntax:
+_pocketBase.Collection("users")
+    .AuthWithPassword("user@example.com", "password")
+    .ContinueWithOnMainThread(task => {
+        if (task.IsFaulted)
+        {
+            // Handle error
+        }
+        else if (task.IsCompleted)
+        {
+            var user = task.Result;
+            // Do something with the user
+        }
+    });
 ```
 
 All responses errors are wrapped in a `ClientException` object, which contains the following properties:
@@ -230,4 +245,3 @@ var pocketBase = new PocketBase(
     authStore: AsyncAuthStore.PlayerPrefs
 );
 ```
-
