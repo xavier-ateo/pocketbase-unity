@@ -203,8 +203,8 @@ public class PocketBaseExample : MonoBehaviour
         {
             var record = await _pocketBase.Collection("post").Create<Post>(new Dictionary<string, string>
             {
-                { "content", "<p>Hello, From dictionary!</p>" },
-                { "test", "test" } // This should not be added in the database as it's not part of the db schema.
+                ["content"] = "",
+                ["test"] = "test" // This should not be added in the database as it's not part of the db schema.
             });
             Debug.Log(JsonConvert.SerializeObject(record, Formatting.Indented));
         }
