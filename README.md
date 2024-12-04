@@ -11,6 +11,7 @@ Unofficial Multi-platform Unity C# SDK for interacting with the [PocketBase Web 
     - [Error handling](#error-handling)
     - [AuthStore](#authstore)
     - [Binding filter parameters](#binding-filter-parameters)
+    - [Extension methods](#extension-methods)
 - [Services](#services)
 - [Development](#development)
 
