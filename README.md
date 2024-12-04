@@ -267,3 +267,6 @@ var record = await _pocketBase.Collection("example").GetList<RecordModel>(filter
 ```
 
 ## Services
+
+See the [API documentation](https://pocketbase.io/docs/) for more information on the available services.
+You can also check out the [Dart SDK](https://github.com/pocketbase/dart-sdk/tree/v0.18.1) documentation for more information on the available methods, as this SDK is a port of the Dart SDK.
