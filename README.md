@@ -46,6 +46,8 @@ https://github.com/Sov3rain/pocketbase-unity.git?path=/Assets/pocketbase-unity#0
 
 This will tag the package with the version `0.22.0`.
 
+You can also install the SDK by downloading the `.unitypackage` from the [releases page](https://github.com/Sov3rain/pocketbase-unity/releases) and importing it into your project.
+
 ## Usage
 
 ```csharp
