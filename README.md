@@ -12,6 +12,7 @@ Unofficial Multi-platform Unity C# SDK for interacting with the [PocketBase Web 
   - [AuthStore](#authstore)
   - [Binding filter parameters](#binding-filter-parameters)
 - [Services](#services)
+- [Development](#development)
 
 ## Supported Unity versions and platforms
 
@@ -270,3 +271,11 @@ var record = await _pocketBase.Collection("example").GetList<RecordModel>(filter
 
 See the [API documentation](https://pocketbase.io/docs/) for more information on the available services.
 You can also check out the [Dart SDK](https://github.com/pocketbase/dart-sdk/tree/v0.18.1) documentation for more information on the available methods, as this SDK is a port of the Dart SDK.
+
+## Development
+
+Clone the repository and open the project in Unity 2022.3. You can safely use any patch version of Unity 2022.3.
+
+The SDK code is located in the `Assets/pocketbase-unity/` folder. This project uses the format of the [Unity Package Manager](https://docs.unity3d.com/Manual/upm-ui-giturl.html) to distribute the SDK.
+
+The only dependency is the [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/) package, which is included in the Unity Package Manager. The rest of the code is written in fully managed C# for maximum platform compatibility.
