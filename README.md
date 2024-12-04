@@ -168,28 +168,24 @@ _pocketBase = new PocketBase("http://127.0.0.1:8090");
 try
 {
     var userData = await _pocketBase.Collection("users").AuthWithPassword("user@example.com", "password");
-    Debug.Log(userData.Id);
 }
 catch (ClientException e)
 {
-    Debug.LogError(e);
+    // Handle error
 }
 
-
 // Or if you are using the ContinueWithOnMainThread syntax:
-_pocketBase.Collection("users")
-    .AuthWithPassword("user@example.com", "password")
-    .ContinueWithOnMainThread(task => {
-        if (task.IsFaulted)
-        {
-            // Handle error
-        }
-        else if (task.IsCompleted)
-        {
-            var user = task.Result;
-            // Do something with the user
-        }
-    });
+_pocketBase.Collection("users").AuthWithPassword("user@example.com", "password").ContinueWithOnMainThread(task => 
+{
+    if (task.IsFaulted)
+    {
+        // Handle error
+    }
+    else if (task.IsCompleted)
+    {
+        var user = task.Result;
+    }
+});
 ```
 
 All responses errors are wrapped in a `ClientException` object, which contains the following properties:
@@ -282,6 +278,30 @@ var filter = PocketBase.Filter(
 );
 
 var record = await _pocketBase.Collection("example").GetList<RecordModel>(filter: filter);
+```
+
+### Extension Methods
+
+The SDK provides some helper methods to help with common tasks. 
+
+One of them is the `ContinueWithOnMainThread` method, which allows you to run a continuation task on the main thread. This is useful when you need to update the UI from a background thread, as Unity does not allow you to do this on any other thread:
+
+```csharp
+private Text _title;
+
+// This will run on the main thread
+_pocketBase.Collection("users").AuthWithPassword("user@example.com", "password").ContinueWithOnMainThread(task => 
+{
+    if (task.IsFaulted)
+    {
+        // Handle error
+    }
+    else if (task.IsCompleted)
+    {
+        var user = task.Result;
+        _title.text = user.Email; // Will throw an exception if called on a background thread
+    }
+});
 ```
 
 ## Services
