@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 namespace PocketBaseSdk
 {
     [Serializable]
-
     public class RecordAuth
     {
         public RecordAuth(string token, BaseAuthModel record)

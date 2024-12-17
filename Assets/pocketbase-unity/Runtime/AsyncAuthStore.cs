@@ -8,6 +8,9 @@ namespace PocketBaseSdk
 {
     public class AsyncAuthStore : AuthStore
     {
+        private const string _tokenKey = "token";
+        private const string _modelKey = "model";
+
         private readonly Func<string, Task> _save;
         private readonly Func<Task> _clear;
         private readonly SyncQueue _queue = new();
@@ -57,35 +60,46 @@ namespace PocketBaseSdk
                 return;
             }
 
-            Dictionary<string, object> decoded;
+            // Dictionary<string, object> decoded = new();
+            RecordAuth decoded;
 
             try
             {
-                decoded = JsonConvert.DeserializeObject<Dictionary<string, object>>(initial);
-                var token = decoded["token"] as string ?? string.Empty;
-                var recordString = decoded["record"].ToString();
-                var rawModel = JsonConvert.DeserializeObject<Dictionary<string, object>>(recordString);
-
-                RecordModel model = null;
-
-                if (rawModel.ContainsKey("collectionId") ||
-                    rawModel.ContainsKey("collectionName") ||
-                    rawModel.ContainsKey("verified") ||
-                    rawModel.ContainsKey("emailVisibility"))
-                {
-                    model = JsonConvert.DeserializeObject<UserModel>(recordString);
-                }
-                else if (rawModel.ContainsKey("id"))
-                {
-                    model = JsonConvert.DeserializeObject<AdminModel>(recordString);
-                }
-
-                Save(token, model);
+                decoded = JsonConvert.DeserializeObject<RecordAuth>(initial);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Debug.LogWarning("Failed to load initial auth data.");
+                Debug.Log(e.Message);
+                return;
             }
+
+            // return;
+            //
+            // try
+            // {
+            //     var raw = JsonConvert.DeserializeObject<Dictionary<string, object>>(initial);
+            //     if (raw != null)
+            //     {
+            //         decoded = raw;
+            //     }
+            // }
+            // catch
+            // {
+            //     return;
+            // }
+            //
+            // string token = decoded.TryGetValue(_tokenKey, out object tokenValue) && tokenValue is string tokenString
+            //     ? tokenString
+            //     : string.Empty;
+            //
+            // var recordData = decoded.TryGetValue(_modelKey, out object modelValue) &&
+            //                  modelValue is Dictionary<string, object> modelDict
+            //     ? modelDict
+            //     : new();
+            //
+            // var record = JsonConvert.DeserializeObject<RecordModel>(recordData.ToString() ?? "{}");
+
+            Save(decoded.Token, decoded.Record);
         }
 
         public static AsyncAuthStore PlayerPrefs => new(

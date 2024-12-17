@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 namespace PocketBaseSdk
 {
     [Serializable]
-
     public class BaseAuthModel : RecordModel
     {
         [JsonProperty("email")]

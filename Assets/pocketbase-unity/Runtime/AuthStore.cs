@@ -5,10 +5,12 @@ using Newtonsoft.Json;
 
 namespace PocketBaseSdk
 {
-    public record AuthStoreEvent(string Token, RecordModel Model)
+    public record AuthStoreEvent(string Token, RecordModel Record)
     {
         public string Token { get; } = Token;
-        public RecordModel Model { get; } = Model;
+        public RecordModel Record { get; } = Record;
+
+        public override string ToString() => $"token: {Token}\nRecord: {Record})";
     }
 
     [Serializable]

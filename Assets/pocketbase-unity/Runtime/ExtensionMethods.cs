@@ -46,20 +46,18 @@ namespace PocketBaseSdk
 
         static TaskScheduler UnitySynchronizationContext => TaskScheduler.FromCurrentSynchronizationContext();
 
-        // Input void, output void
-        public static Task ContinueWithOnMainThread(this Task task, Action<Task> continuation) =>
-            task.ContinueWith(continuation, UnitySynchronizationContext);
-
-        // Input void, output result
-        public static Task<TResult> ContinueWithOnMainThread<TResult>(
-            this Task task,
-            Func<Task, TResult> continuation) =>
-            task.ContinueWith(continuation, UnitySynchronizationContext);
-
-        // Input value, output result
-        public static Task<TResult> ContinueWithOnMainThread<TInput, TResult>(
-            this Task<TInput> task,
-            Func<Task<TInput>, TResult> continuation) =>
-            task.ContinueWith(continuation, UnitySynchronizationContext);
+        public static Task ContinueWithOnMainThread<T>(
+            this Task<T> task,
+            Action<Task<T>> continuation)
+        {
+            return task.ContinueWith(continuation, UnitySynchronizationContext);
+        }
+        
+        public static TOut ContinueWithOnMainThread<TIn, TOut>(
+            this Task<TIn> task,
+            Func<Task<TIn>, TOut> continuation)
+        {
+            return task.ContinueWith(continuation, UnitySynchronizationContext).Result;
+        }
     }
 }
