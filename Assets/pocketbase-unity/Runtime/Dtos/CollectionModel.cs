@@ -42,7 +42,7 @@ namespace PocketBaseSdk
         public string DeleteRule { get; set; }
 
         [JsonProperty("schema")]
-        public List<SchemaField> Schema { get; set; } = new();
+        public List<CollectionField> Fields { get; set; } = new();
 
         [JsonProperty("indexes")]
         public List<string> Indexes { get; set; } = new();

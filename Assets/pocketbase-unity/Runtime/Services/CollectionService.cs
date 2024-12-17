@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Codice.Utils;
 
 namespace PocketBaseSdk
 {
@@ -41,6 +42,40 @@ namespace PocketBaseSdk
                 $"{BaseCrudPath}/import",
                 method: "PUT",
                 body: enrichedBody,
+                query: query,
+                headers: headers
+            );
+        }
+
+        /// <summary>
+        /// Returns type indexed map with scaffolded collection models populated with their default field values.
+        /// </summary>
+        public Task<Dictionary<string, CollectionModel>> GetScaffolds(
+            Dictionary<string, object> body = null,
+            Dictionary<string, object> query = null,
+            Dictionary<string, string> headers = null)
+        {
+            return _client.Send(
+                    $"{BaseCrudPath}/meta/scaffolds",
+                    body: body,
+                    query: query,
+                    headers: headers)
+                .ContinueWith(t => t.Result.ToObject<Dictionary<string, CollectionModel>>());
+        }
+
+        /// <summary>
+        /// Deletes all records associated with the specified collection.
+        /// </summary>
+        public Task Truncate(
+            string collectionIdOrName,
+            Dictionary<string, object> body = null,
+            Dictionary<string, object> query = null,
+            Dictionary<string, string> headers = null)
+        {
+            return _client.Send(
+                $"{BaseCrudPath}/{HttpUtility.UrlEncode(collectionIdOrName)}/truncate",
+                method: "DELETE",
+                body: body,
                 query: query,
                 headers: headers
             );

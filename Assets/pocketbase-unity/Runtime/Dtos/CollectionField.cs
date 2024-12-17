@@ -6,7 +6,7 @@ namespace PocketBaseSdk
 {
     [Serializable]
 
-    public sealed class SchemaField
+    public sealed class CollectionField
     {
         [JsonProperty("id")]
         string Id { get; set; } = string.Empty;

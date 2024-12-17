@@ -19,7 +19,7 @@ namespace PocketBaseSdk
         public readonly EventStream<AuthStoreEvent> OnChange = new();
 
         public string Token { get; private set; }
-        public RecordModel Model { get; private set; }
+        public RecordModel Record { get; private set; }
 
         public bool IsValid()
         {
@@ -66,20 +66,26 @@ namespace PocketBaseSdk
             return exp > DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         }
 
+        /// <summary>
+        /// Saves the provided <paramref name="newToken"/> and <paramref name="newRecord"/> auth data into the store.
+        /// </summary> 
         public virtual void Save(string newToken, RecordModel newRecord)
         {
             Token = newToken;
-            Model = newRecord;
+            Record = newRecord;
 
-            OnChange.Invoke(new AuthStoreEvent(Token, Model));
+            OnChange.Invoke(new AuthStoreEvent(Token, Record));
         }
 
+        /// <summary>
+        /// Clears the previously stored <see cref="Token"/> and <see cref="Record"/> auth data.
+        /// </summary>
         public virtual void Clear()
         {
             Token = string.Empty;
-            Model = null;
+            Record = null;
 
-            OnChange.Invoke(new AuthStoreEvent(Token, Model));
+            OnChange.Invoke(new AuthStoreEvent(Token, Record));
         }
     }
 }
