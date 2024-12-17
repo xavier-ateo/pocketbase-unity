@@ -20,11 +20,11 @@ namespace PocketBaseSdk
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            return _client.Send<HealthCheck>(
+            return _client.Send(
                 "/api/health",
                 query: query,
                 headers: headers
-            );
+            ).ContinueWith(t => t.Result.ToObject<HealthCheck>());
         }
     }
 }

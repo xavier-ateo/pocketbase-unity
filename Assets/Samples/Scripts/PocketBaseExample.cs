@@ -11,22 +11,20 @@ public class PocketBaseExample : MonoBehaviour
     {
         _pocketBase = new PocketBase(_pocketBaseUrl, authStore: AsyncAuthStore.PlayerPrefs);
 
-        _pocketBase.Collection("users").AuthRefresh().ContinueWithOnMainThread(t =>
-        {
-            if (t.IsFaulted)
-            {
-                Debug.LogError(t.Exception);
-            }
-
-            var user = t.Result;
-            Debug.Log(user.Record.Email);
-        });
+        // _pocketBase.Collection("users").AuthRefresh().ContinueWithOnMainThread(t =>
+        // {
+        //     if (t.IsFaulted)
+        //     {
+        //         Debug.LogError(t.Exception);
+        //     }
+        //
+        //     var user = t.Result;
+        //     Debug.Log(user.Record.Email);
+        // });
 
         _pocketBase.AuthStore.OnChange.Subscribe(e =>
         {
-            Debug.Log(e);
-            Debug.Log(e.Token);
-            Debug.Log(((BaseAuthModel)e.Record).Email);
+            Debug.Log(e.Record);
         });
     }
 
@@ -43,7 +41,7 @@ public class PocketBaseExample : MonoBehaviour
                 }
 
                 var user = t.Result;
-                Debug.Log(user.Record.Email);
+                Debug.Log(user.Record.ToString());
             });
     }
 

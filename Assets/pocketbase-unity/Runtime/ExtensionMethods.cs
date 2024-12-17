@@ -52,12 +52,5 @@ namespace PocketBaseSdk
         {
             return task.ContinueWith(continuation, UnitySynchronizationContext);
         }
-        
-        public static TOut ContinueWithOnMainThread<TIn, TOut>(
-            this Task<TIn> task,
-            Func<Task<TIn>, TOut> continuation)
-        {
-            return task.ContinueWith(continuation, UnitySynchronizationContext).Result;
-        }
     }
 }

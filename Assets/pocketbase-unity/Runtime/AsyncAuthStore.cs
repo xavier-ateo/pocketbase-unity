@@ -8,9 +8,6 @@ namespace PocketBaseSdk
 {
     public class AsyncAuthStore : AuthStore
     {
-        private const string _tokenKey = "token";
-        private const string _modelKey = "model";
-
         private readonly Func<string, Task> _save;
         private readonly Func<Task> _clear;
         private readonly SyncQueue _queue = new();
@@ -26,14 +23,14 @@ namespace PocketBaseSdk
             LoadInitial(initial);
         }
 
-        public override void Save(string newToken, RecordModel newModel)
+        public override void Save(string newToken, RecordModel newRecord)
         {
-            base.Save(newToken, newModel);
+            base.Save(newToken, newRecord);
 
             var encoded = JsonConvert.SerializeObject(new Dictionary<string, object>
             {
                 ["token"] = newToken,
-                ["record"] = newModel
+                ["record"] = newRecord
             });
 
             _queue.Enqueue(() => _save(encoded));
@@ -60,46 +57,15 @@ namespace PocketBaseSdk
                 return;
             }
 
-            // Dictionary<string, object> decoded = new();
-            RecordAuth decoded;
-
             try
             {
-                decoded = JsonConvert.DeserializeObject<RecordAuth>(initial);
+                var decoded = JsonConvert.DeserializeObject<RecordAuth>(initial);
+                Save(decoded.Token, decoded.Record);
             }
             catch (Exception e)
             {
                 Debug.Log(e.Message);
-                return;
             }
-
-            // return;
-            //
-            // try
-            // {
-            //     var raw = JsonConvert.DeserializeObject<Dictionary<string, object>>(initial);
-            //     if (raw != null)
-            //     {
-            //         decoded = raw;
-            //     }
-            // }
-            // catch
-            // {
-            //     return;
-            // }
-            //
-            // string token = decoded.TryGetValue(_tokenKey, out object tokenValue) && tokenValue is string tokenString
-            //     ? tokenString
-            //     : string.Empty;
-            //
-            // var recordData = decoded.TryGetValue(_modelKey, out object modelValue) &&
-            //                  modelValue is Dictionary<string, object> modelDict
-            //     ? modelDict
-            //     : new();
-            //
-            // var record = JsonConvert.DeserializeObject<RecordModel>(recordData.ToString() ?? "{}");
-
-            Save(decoded.Token, decoded.Record);
         }
 
         public static AsyncAuthStore PlayerPrefs => new(

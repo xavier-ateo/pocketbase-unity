@@ -66,10 +66,10 @@ namespace PocketBaseSdk
             return exp > DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         }
 
-        public virtual void Save(string newToken, RecordModel newModel)
+        public virtual void Save(string newToken, RecordModel newRecord)
         {
             Token = newToken;
-            Model = newModel;
+            Model = newRecord;
 
             OnChange.Invoke(new AuthStoreEvent(Token, Model));
         }
