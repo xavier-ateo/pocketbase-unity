@@ -81,6 +81,7 @@ namespace PocketBaseSdk
         public Task TestEmail(
             string toEmail,
             string template,
+            string collection, // fallback to _superusers
             Dictionary<string, object> body = null,
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
@@ -88,6 +89,7 @@ namespace PocketBaseSdk
             Dictionary<string, object> enrichedBody = new(body ?? new());
             enrichedBody.TryAddNonNull("email", toEmail);
             enrichedBody.TryAddNonNull("template", template);
+            enrichedBody.TryAdd("collection", collection);
 
             return _client.Send(
                 "/api/settings/test/email",
