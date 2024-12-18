@@ -60,7 +60,7 @@ public class PocketBaseExamples : MonoBehaviour
     private void GetFullList()
     {
         _pb.Collection("Posts")
-            .GetFullList<RecordModel>(10)
+            .GetFullList(10)
             .ContinueWithOnMainThread(t =>
             {
                 if (t.IsFaulted && t.Exception?.InnerException is AggregateException ae)
@@ -80,11 +80,11 @@ public class PocketBaseExamples : MonoBehaviour
             });
     }
 
-    [ContextMenu(nameof(GetPost))]
-    private void GetPost()
+    [ContextMenu(nameof(GetOne))]
+    private void GetOne()
     {
         _pb.Collection("Posts")
-            .GetOne<RecordModel>("3g28fsld3arvpaza")
+            .GetOne("3g28fsld3arvpaz")
             .ContinueWithOnMainThread(t =>
             {
                 if (t.IsFaulted && t.Exception?.InnerException is AggregateException ae)
@@ -95,8 +95,8 @@ public class PocketBaseExamples : MonoBehaviour
                     }
                 }
 
-                var post = t.Result;
-                Debug.Log(post["title"]);
+                Post post = Post.FromRecord(t.Result);
+                Debug.Log(post.Title);
             });
     }
 }

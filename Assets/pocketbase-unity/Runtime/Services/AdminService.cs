@@ -39,7 +39,7 @@ namespace PocketBaseSdk
             string expand = null,
             string fields = null)
         {
-            var item = await base.Update<AdminModel>(id, body, query, files, headers, expand, fields);
+            var item = await base.Update(id, body, query, files, headers, expand, fields);
 
             if (item is { } record &&
                 _client.AuthStore.Model is { } authModel &&

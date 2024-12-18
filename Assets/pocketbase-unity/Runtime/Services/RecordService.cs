@@ -11,7 +11,7 @@ namespace PocketBaseSdk
 {
     public delegate void RecordSubscriptionFunc<T>(RecordSubscriptionEvent<T> e);
 
-    public class RecordService : BaseCrudService
+    public class RecordService : BaseCrudService<RecordModel>
     {
         public RecordService(PocketBase client, string collectionIdOrName) : base(client)
         {
@@ -93,7 +93,7 @@ namespace PocketBaseSdk
         /// If the current AuthStore model matches with the updated id, then
         /// on success the client AuthStore will be updated with the result model.
         /// </remarks>
-        public override async Task<T> Update<T>(
+        public override async Task<RecordModel> Update(
             string id,
             object body = null,
             Dictionary<string, object> query = null,
@@ -101,9 +101,9 @@ namespace PocketBaseSdk
             Dictionary<string, string> headers = null,
             string expand = null, string fields = null)
         {
-            var item = await base.Update<T>(id, body, query, files, headers, expand, fields);
+            var item = await base.Update(id, body, query, files, headers, expand, fields);
 
-            if (item is RecordModel record &&
+            if (item is { } record &&
                 _client.AuthStore.Model is not null &&
                 _client.AuthStore.Model.Id == record.Id)
             {
