@@ -147,11 +147,11 @@ namespace PocketBaseSdk
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            return _client.Send<AuthMethodList>(
+            return _client.Send(
                 $"{BaseCollectionPath}/auth-methods",
                 query: query,
                 headers: headers
-            );
+            ).ContinueWith(t => t.Result.ToObject<AuthMethodList>());
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("expand", expand);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            var authResult = await _client.Send<RecordAuth>(
+            var jObj = await _client.Send(
                 $"{BaseCollectionPath}/auth-with-password",
                 method: "POST",
                 body: enrichedBody,
@@ -186,6 +186,8 @@ namespace PocketBaseSdk
                 headers: headers
             );
 
+            var authResult = jObj.ToObject<RecordAuth>();
+            
             _client.AuthStore.Save(authResult.Token, authResult.Record);
 
             return authResult;
@@ -203,7 +205,7 @@ namespace PocketBaseSdk
             Dictionary<string, object> enrichedBody = new(body ?? new());
             enrichedBody.TryAdd("email", email);
 
-            return _client.Send<Void>(
+            return _client.Send(
                 $"{BaseCollectionPath}/request-password-reset",
                 method: "POST",
                 body: enrichedBody,
@@ -228,7 +230,7 @@ namespace PocketBaseSdk
             enrichedBody.TryAdd("password", password);
             enrichedBody.TryAdd("passwordConfirm", passwordConfirm);
 
-            return _client.Send<Void>(
+            return _client.Send(
                 $"{BaseCollectionPath}/confirm-password-reset",
                 method: "POST",
                 body: enrichedBody,
@@ -249,7 +251,7 @@ namespace PocketBaseSdk
             Dictionary<string, object> enrichedBody = new(body ?? new());
             enrichedBody.TryAdd("email", email);
 
-            return _client.Send<Void>(
+            return _client.Send(
                 $"{BaseCollectionPath}/request-verification",
                 method: "POST",
                 body: enrichedBody,
@@ -273,7 +275,7 @@ namespace PocketBaseSdk
             Dictionary<string, object> enrichedBody = new(body ?? new());
             enrichedBody.TryAdd("token", verificationToken);
 
-            await _client.Send<Void>(
+            await _client.Send(
                 $"{BaseCollectionPath}/confirm-verification",
                 method: "POST",
                 body: enrichedBody,
@@ -313,7 +315,7 @@ namespace PocketBaseSdk
             Dictionary<string, object> enrichedBody = new(body ?? new());
             enrichedBody.TryAdd("newEmail", newEmail);
 
-            return _client.Send<Void>(
+            return _client.Send(
                 $"{BaseCollectionPath}/request-email-change",
                 method: "POST",
                 body: enrichedBody,
@@ -340,7 +342,7 @@ namespace PocketBaseSdk
             enrichedBody.TryAdd("token", emailChangeToken);
             enrichedBody.TryAdd("password", userPassword);
 
-            await _client.Send<Void>(
+            await _client.Send(
                 $"{BaseCollectionPath}/confirm-email-change",
                 method: "POST",
                 body: enrichedBody,
@@ -375,11 +377,11 @@ namespace PocketBaseSdk
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            return _client.Send<List<ExternalAuthModel>>(
+            return _client.Send(
                 $"{BaseCollectionPath}/{HttpUtility.UrlEncode(recordId)}/external-auths",
                 query: query,
                 headers: headers
-            );
+            ).ContinueWith(t => t.Result.ToObject<List<ExternalAuthModel>>());
         }
 
         /// <summary>
@@ -393,7 +395,7 @@ namespace PocketBaseSdk
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            return _client.Send<Void>(
+            return _client.Send(
                 $"{BaseCollectionPath}/{HttpUtility.UrlEncode(recordId)}/external-auths/{HttpUtility.UrlEncode(provider)}",
                 method: "DELETE",
                 body: body,
@@ -432,13 +434,15 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("expand", expand);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            var authResult = await _client.Send<RecordAuth>(
+            var jObj = await _client.Send(
                 $"{BaseCollectionPath}/auth-with-oauth2",
                 method: "POST",
                 body: enrichedBody,
                 query: enrichedQuery,
                 headers: headers
             );
+
+            var authResult = jObj.ToObject<RecordAuth>();
 
             _client.AuthStore.Save(authResult.Token, authResult.Record);
 
@@ -463,13 +467,15 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("expand", expand);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            var authResult = await _client.Send<RecordAuth>(
+            var jObj = await _client.Send(
                 $"{BaseCollectionPath}/auth-refresh",
                 method: "POST",
                 body: body,
                 query: enrichedQuery,
                 headers: headers
             );
+            
+            var authResult = jObj.ToObject<RecordAuth>();
 
             _client.AuthStore.Save(authResult.Token, authResult.Record);
 

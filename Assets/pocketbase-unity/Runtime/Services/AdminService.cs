@@ -95,13 +95,15 @@ namespace PocketBaseSdk
             enrichedBody.TryAdd("email", email);
             enrichedBody.TryAdd("password", password);
 
-            var authResult = await _client.Send<AdminAuth>(
+            var jObj = await _client.Send(
                 $"{BaseCrudPath}/auth-with-password",
                 method: "POST",
                 body: enrichedBody,
                 query: enrichedBody,
                 headers: headers
             );
+
+            var authResult = jObj.ToObject<AdminAuth>();
 
             _client.AuthStore.Save(authResult.Token, authResult.Admin);
 
@@ -120,13 +122,15 @@ namespace PocketBaseSdk
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            var authResult = await _client.Send<AdminAuth>(
+            var jObj = await _client.Send(
                 $"{BaseCrudPath}/auth-refresh",
                 method: "POST",
                 body: body,
                 query: query,
                 headers: headers
             );
+
+            var authResult = jObj.ToObject<AdminAuth>();
 
             _client.AuthStore.Save(authResult.Token, authResult.Admin);
 
@@ -145,7 +149,7 @@ namespace PocketBaseSdk
             Dictionary<string, object> enrichedBody = new(body ?? new());
             enrichedBody.TryAdd("email", email);
 
-            return _client.Send<Void>(
+            return _client.Send(
                 $"{BaseCrudPath}/request-password-reset",
                 method: "POST",
                 body: enrichedBody,
@@ -170,7 +174,7 @@ namespace PocketBaseSdk
             enrichedBody.TryAdd("password", password);
             enrichedBody.TryAdd("passwordConfirm", passwordConfirm);
 
-            return _client.Send<Void>(
+            return _client.Send(
                 $"{BaseCrudPath}/confirm-password-reset",
                 method: "POST",
                 body: enrichedBody,

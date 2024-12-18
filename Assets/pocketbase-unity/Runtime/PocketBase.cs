@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine.Networking;
 using static UnityEngine.Networking.UnityWebRequest.Result;
 
@@ -58,7 +57,7 @@ namespace PocketBaseSdk
             return service;
         }
 
-        public async Task<T> Send<T>(
+        public async Task<JObject> Send(
             string path,
             string method = "GET",
             Dictionary<string, string> headers = null,
@@ -97,12 +96,12 @@ namespace PocketBaseSdk
 
             try
             {
-                var record = JsonConvert.DeserializeObject<T>(req.downloadHandler.text);
+                var record = JObject.Parse(req.downloadHandler.text);
                 return record;
             }
             catch (JsonSerializationException)
             {
-                return default;
+                return null;
             }
         }
 
@@ -248,9 +247,5 @@ namespace PocketBaseSdk
 
             return request;
         }
-    }
-
-    public readonly struct Void
-    {
     }
 }

@@ -16,6 +16,9 @@ namespace PocketBaseSdk
         {
         }
 
+        /// <summary>
+        /// Returns a list with all items batch fetched at once.
+        /// </summary>
         public Task<List<T>> GetFullList<T>(
             int batch = 500,
             string expand = null,
@@ -74,11 +77,11 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("sort", sort);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            return _client.Send<ResultList<T>>(
+            return _client.Send(
                 BaseCrudPath,
                 query: enrichedQuery,
                 headers: headers
-            );
+            ).ContinueWith(t => t.Result.ToObject<ResultList<T>>());
         }
 
         public Task<T> GetOne<T>(
@@ -107,11 +110,11 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("expand", expand);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            return _client.Send<T>(
+            return _client.Send(
                 path: $"{BaseCrudPath}/{HttpUtility.UrlEncode(id)}",
                 query: enrichedQuery,
                 headers: headers
-            );
+            ).ContinueWith(t => t.Result.ToObject<T>());
         }
 
         public async Task<T> GetFirstListItem<T>(
@@ -161,14 +164,14 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("expand", expand);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            return _client.Send<T>(
+            return _client.Send(
                 BaseCrudPath,
                 method: "POST",
                 body: body,
                 query: enrichedQuery,
                 files: files,
                 headers: headers
-            );
+            ).ContinueWith(t => t.Result.ToObject<T>());
         }
 
         public virtual Task<T> Update<T>(
@@ -184,14 +187,14 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("expand", expand);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            return _client.Send<T>(
+            return _client.Send(
                 path: $"{BaseCrudPath}/{HttpUtility.UrlEncode(id)}",
                 method: "PATCH",
                 body: body,
                 query: enrichedQuery,
                 files: files,
                 headers: headers
-            );
+            ).ContinueWith(t => t.Result.ToObject<T>());
         }
 
         public virtual Task Delete(
@@ -200,7 +203,7 @@ namespace PocketBaseSdk
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            return _client.Send<Void>(
+            return _client.Send(
                 path: $"{BaseCrudPath}/{HttpUtility.UrlEncode(id)}",
                 method: "DELETE",
                 body: body,

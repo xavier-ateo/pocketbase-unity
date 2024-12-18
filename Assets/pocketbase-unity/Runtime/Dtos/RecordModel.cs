@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace PocketBaseSdk
 {
     [Serializable]
-
     public class RecordModel
     {
         [JsonProperty("id")]
@@ -21,5 +22,12 @@ namespace PocketBaseSdk
 
         [JsonProperty("updated")]
         public DateTime? Updated { get; private set; }
+
+        [JsonExtensionData]
+        private IDictionary<string, JToken> _additionalData;
+
+        public object this[string key] => _additionalData.TryGetValue(key, out var value) ? value : null;
+
+        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }

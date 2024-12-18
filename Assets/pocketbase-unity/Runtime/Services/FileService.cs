@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace PocketBaseSdk
 {
@@ -60,13 +61,15 @@ namespace PocketBaseSdk
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            var tokenResult = await _client.Send<FileToken>(
+            JObject jObj = await _client.Send(
                 "api/files/token",
                 method: "POST",
                 body: body,
                 query: query,
                 headers: headers
             );
+
+            FileToken tokenResult = jObj.ToObject<FileToken>();
 
             return tokenResult.Token;
         }

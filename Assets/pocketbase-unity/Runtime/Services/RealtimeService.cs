@@ -291,7 +291,7 @@ namespace PocketBaseSdk
 
         private Task SubmitSubscriptions()
         {
-            return _client.Send<Void>(
+            return _client.Send(
                 path: "/api/realtime",
                 method: "POST",
                 body: new

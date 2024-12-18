@@ -37,7 +37,7 @@ namespace PocketBaseSdk
             enrichedBody.TryAddNonNull("collections", collections);
             enrichedBody.TryAddNonNull("deleteMissing", deleteMissing);
 
-            return _client.Send<Void>(
+            return _client.Send(
                 $"{BaseCrudPath}/import",
                 method: "PUT",
                 body: enrichedBody,

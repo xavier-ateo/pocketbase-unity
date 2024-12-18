@@ -16,5 +16,7 @@ namespace PocketBaseSdk
 
         [JsonProperty("data")]
         public Dictionary<string, object> Data { get; set; } = new();
+
+        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }
