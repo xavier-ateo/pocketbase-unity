@@ -96,6 +96,9 @@ public class PocketBaseExamples : MonoBehaviour
                 }
 
                 Post post = Post.FromRecord(t.Result);
+                var status = (int)t.Result["status"];
+                var nested = t.Result["expand"]?["user"]?.ToObject<RecordModel>();
+                var nested2 = t.Result["expand"]?["user"]?["title"]?.ToString();
                 Debug.Log(post.Title);
             });
     }

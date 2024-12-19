@@ -26,7 +26,7 @@ namespace PocketBaseSdk
         [JsonExtensionData]
         private IDictionary<string, JToken> _additionalData;
 
-        public object this[string key] => _additionalData.TryGetValue(key, out var value) ? value : null;
+        public JToken this[string key] => _additionalData.TryGetValue(key, out var value) ? value : null;
 
         public override string ToString() => JsonConvert.SerializeObject(this);
     }
