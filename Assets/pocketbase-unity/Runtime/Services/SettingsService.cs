@@ -23,11 +23,11 @@ namespace PocketBaseSdk
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            return _client.Send<Dictionary<string, object>>(
+            return _client.Send(
                 "/api/settings",
                 query: query,
                 headers: headers
-            );
+            ).ContinueWith(t => t.Result.ToObject<Dictionary<string, object>>());
         }
 
         /// <summary>
@@ -38,13 +38,13 @@ namespace PocketBaseSdk
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            return _client.Send<Dictionary<string, object>>(
+            return _client.Send(
                 "/api/settings",
                 method: "PATCH",
                 body: body,
                 query: query,
                 headers: headers
-            );
+            ).ContinueWith(t => t.Result.ToObject<Dictionary<string, object>>());
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace PocketBaseSdk
             Dictionary<string, object> enrichedBody = new(body ?? new());
             enrichedBody.TryAddNonNull("filesystem", filesystem);
 
-            return _client.Send<Void>(
+            return _client.Send(
                 "/api/settings/test/s3",
                 method: "POST",
                 body: enrichedBody,
@@ -88,7 +88,7 @@ namespace PocketBaseSdk
             enrichedBody.TryAddNonNull("email", toEmail);
             enrichedBody.TryAddNonNull("template", template);
 
-            return _client.Send<Void>(
+            return _client.Send(
                 "/api/settings/test/email",
                 method: "POST",
                 body: enrichedBody,
@@ -117,13 +117,13 @@ namespace PocketBaseSdk
             enrichedBody.TryAddNonNull("privateKey", privateKey);
             enrichedBody.TryAddNonNull("duration", duration);
 
-            return _client.Send<AppleClientSecret>(
+            return _client.Send(
                 "/api/settings/apple/generate-client-secret",
                 method: "POST",
                 body: enrichedBody,
                 query: query,
                 headers: headers
-            );
+            ).ContinueWith(t => t.Result.ToObject<AppleClientSecret>());
         }
     }
 }

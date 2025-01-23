@@ -73,3 +73,7 @@ crashlytics-build.properties
 
 # Jetbrains files
 /.idea/
+
+# Private config files
+**/config.json
+**/config.json.meta

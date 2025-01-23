@@ -288,10 +288,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 949413016}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cec48ea8ae2449e587a8eb781f8e224e, type: 3}
+  m_Script: {fileID: 11500000, guid: 65dd77a5fe444a4d9623a8d58957f09c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RecordIdToDelete: bnibxku68obwjkr
+  _config: {fileID: 4900000, guid: 1ed810c02bee49a491d884091d2a8a2d, type: 3}
 --- !u!4 &949413018
 Transform:
   m_ObjectHideFlags: 0

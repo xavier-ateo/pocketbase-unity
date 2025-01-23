@@ -44,22 +44,32 @@ namespace PocketBaseSdk
             }
         }
 
-        static TaskScheduler UnitySynchronizationContext => TaskScheduler.FromCurrentSynchronizationContext();
+        private static TaskScheduler UnityMainThreadTaskScheduler => TaskScheduler.FromCurrentSynchronizationContext();
 
-        // Input void, output void
-        public static Task ContinueWithOnMainThread(this Task task, Action<Task> continuation) =>
-            task.ContinueWith(continuation, UnitySynchronizationContext);
-
-        // Input void, output result
-        public static Task<TResult> ContinueWithOnMainThread<TResult>(
+        public static Task ContinueWithOnMainThread(
             this Task task,
-            Func<Task, TResult> continuation) =>
-            task.ContinueWith(continuation, UnitySynchronizationContext);
+            Action<Task> continuationAction,
+            TaskContinuationOptions continuationOptions = TaskContinuationOptions.None,
+            CancellationToken cancellationToken = default)
+        {
+            return task.ContinueWith(
+                continuationAction,
+                cancellationToken,
+                continuationOptions,
+                UnityMainThreadTaskScheduler);
+        }
 
-        // Input value, output result
-        public static Task<TResult> ContinueWithOnMainThread<TInput, TResult>(
-            this Task<TInput> task,
-            Func<Task<TInput>, TResult> continuation) =>
-            task.ContinueWith(continuation, UnitySynchronizationContext);
+        public static Task ContinueWithOnMainThread<T>(
+            this Task<T> task,
+            Action<Task<T>> continuationAction,
+            TaskContinuationOptions continuationOptions = TaskContinuationOptions.None,
+            CancellationToken cancellationToken = default)
+        {
+            return task.ContinueWith(
+                continuationAction,
+                cancellationToken,
+                continuationOptions,
+                UnityMainThreadTaskScheduler);
+        }
     }
 }

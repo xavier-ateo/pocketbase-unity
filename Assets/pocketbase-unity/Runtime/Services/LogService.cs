@@ -33,11 +33,11 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("search", filter);
             enrichedQuery.TryAddNonNull("sort", sort);
 
-            return _client.Send<ResultList<LogModel>>(
+            return _client.Send(
                 "api/logs",
                 query: enrichedQuery,
                 headers: headers
-            );
+            ).ContinueWith(t => t.Result.ToObject<ResultList<LogModel>>());
         }
     }
 }

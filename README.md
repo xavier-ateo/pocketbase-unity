@@ -6,12 +6,12 @@ Unofficial Multi-platform Unity C# SDK for interacting with the [PocketBase Web 
 - [Installation](#installation)
 - [Usage](#usage)
 - [Caveats](#caveats)
-    - [File upload](#file-upload)
-    - [RecordModel](#recordmodel)
-    - [Error handling](#error-handling)
-    - [AuthStore](#authstore)
-    - [Binding filter parameters](#binding-filter-parameters)
-    - [Extension methods](#extension-methods)
+  - [File upload](#file-upload)
+  - [RecordModel](#recordmodel)
+  - [Error handling](#error-handling)
+  - [AuthStore](#authstore)
+  - [Binding filter parameters](#binding-filter-parameters)
+  - [Extension methods](#extension-methods)
 - [Services](#services)
 - [Development](#development)
 
@@ -31,7 +31,7 @@ This package runs on Unity **2022.3 or later**. It has been tested on the follow
 Some versions of PocketBase may not be compatible with some versions of this SDK. Please check the following table:
 
 | Unity SDK Version | PocketBase Version |
-|-------------------|--------------------|
+| ----------------- | ------------------ |
 | 0.22.x            | 0.22.x             |
 | Not yet released  | 0.23.x             |
 
@@ -56,17 +56,17 @@ using UnityEngine;
 
 public class PocketBaseExample : MonoBehaviour
 {
-    private PocketBase _pocketBase;
+    private PocketBase pb;
 
     private async void Start()
     {
         _pocketBase = new PocketBase("http://127.0.0.1:8090");
 
         // Authenticate as regular user
-        var userData = await _pocketBase.Collection("users").AuthWithPassword("user@example.com", "password");
+        var userData = await pb.Collection("users").AuthWithPassword("user@example.com", "password");
 
         // List and filter "example" collection records
-        var result = await _pocketBase.Collection("example").GetList<RecordModel>(
+        var result = await pb.Collection("example").GetList<RecordModel>(
             page: 1,
             perPage: 20,
             filter: "status = true && created >= \"2022-08-01\"",
@@ -75,7 +75,7 @@ public class PocketBaseExample : MonoBehaviour
         );
 
         // Susbscribe to realtime "example" collection changes
-        _pocketBase.Collection("example").Subscribe<RecordModel>("*", e =>
+        pb.Collection("example").Subscribe<RecordModel>("*", e =>
         {
             Debug.Log(e.Action); // "create", "update", "delete"
             Debug.Log(e.Record); // The changed record
@@ -104,9 +104,9 @@ public class PocketBaseExample : MonoBehaviour
 
     private async void Start()
     {
-        _pocketBase = new PocketBase("http://127.0.0.1:8090");
+        pb= new PocketBase("http://127.0.0.1:8090");
 
-        var record = await _pocketBase.Collection("example").Create<RecordModel>(
+        var record = await pb.Collection("example").Create<RecordModel>(
             body: new()
             {
                 title = "Hello, World!"
@@ -128,10 +128,21 @@ public class PocketBaseExample : MonoBehaviour
 
 ### RecordModel
 
-In most cases, the SDK is capable of automatically mapping the response to a custom class that inherits from
-`RecordModel`.
+The SDK comes with several helpers to make it easier working with the `RecordService` and `RecordModel` DTO. Below is an example on how to access and cast record data values with the `RecordModel[string]` indexer:
 
-Here is an example of a custom class that inherits from `RecordModel`:
+```csharp
+var record = await pb.Collection("example").GetOne("RECORD_ID");
+
+
+var options = record["options"]?.ToObject<List<string>>();
+var email = (string)record["email"];
+var status = (int)record["status"];
+var price = (float)record["price"];
+var nested1 = record["expand"]?["user"]?.ToObject<RecordModel>();
+var nested2 = record["expand"]?["user"]?["title"]?.ToString() ?? "N/A";
+```
+
+Alternatively, you can also create your own typed DTO data classes and use a static factory method to populate your object, eg:
 
 ```csharp
 using PocketBaseSdk;
@@ -141,23 +152,19 @@ public class Post : RecordModel
 {
     public string Title { get; set; }
     public string Content { get; set; }
+
+    public static Post FromRecord(RecordModel record) => 
+        JsonConvert.DeserializeObject<Post>(record.ToString());
 }
 ```
 
 And here is an example of how to use it:
 
 ```csharp
-_pocketBase = new PocketBase("http://127.0.0.1:8090");
+// Fetch your raw record
+var record = await pb.Collection("posts").GetOne("POST_ID");
 
-var record = await _pocketBase.Collection("example").Create<Post>(
-    body: new Post
-    {
-        Title = "Hello, World!",
-        Content = "This is a post."
-    }
-);
-
-Debug.Log(record.Id);
+var post = Post.FromRecord(record);
 ```
 
 ### Error handling
@@ -165,12 +172,10 @@ Debug.Log(record.Id);
 All services return a standard Task object that can be awaited, so the error handling is pretty straightforward.
 
 ```csharp
-_pocketBase = new PocketBase("http://127.0.0.1:8090");
-
 // If you are using the async/await syntax:
 try
 {
-    var userData = await _pocketBase.Collection("users").AuthWithPassword("user@example.com", "password");
+    var userData = await pb.Collection("users").AuthWithPassword("user@example.com", "password");
 }
 catch (ClientException e)
 {
@@ -178,7 +183,7 @@ catch (ClientException e)
 }
 
 // Or if you are using the ContinueWithOnMainThread syntax:
-_pocketBase.Collection("users").AuthWithPassword("user@example.com", "password").ContinueWithOnMainThread(task => 
+pb.Collection("users").AuthWithPassword("user@example.com", "password").ContinueWithOnMainThread(task => 
 {
     if (task.IsFaulted)
     {
@@ -198,7 +203,7 @@ public class ClientException : Exception
 {
     public string Url { get; }
     public int StatusCode { get; }
-    public Dictionaruy<string, object> Response { get; }
+    public Dictionary<string, object> Response { get; }
     public object OriginalError { get; }
 }
 ```
@@ -235,7 +240,7 @@ pocketBase.AuthStore.OnChange.Subscribe(e =>
 
 If you want to persist the `AuthStore`, you can inherit from the default store and pass a new custom instance as
 constructor argument to the client.
-To make is slightly more convenient, the SDK has a builtin `AsyncAuthStore` that you can combine with any async
+To make is slightly more convenient, the SDK has a built-in `AsyncAuthStore` that you can combine with any async
 persistent layer. Here is an example using Unity's `PlayerPrefs`:
 
 ```csharp
@@ -248,7 +253,7 @@ AsyncAuthStore store => new(
     initial: UnityEngine.PlayerPrefs.GetString("pb_auth", string.Empty)
 );
 
-var pocketBase = new PocketBase(
+var pb = new PocketBase(
     "http://127.0.0.1:8090",
     authStore: store
 );
@@ -258,7 +263,7 @@ You can also use the `AsyncAuthStore.PlayerPrefs` static property, which will au
 PlayerPrefs:
 
 ```csharp
-var pocketBase = new PocketBase(
+var pb = new PocketBase(
     "http://127.0.0.1:8090",
     authStore: AsyncAuthStore.PlayerPrefs
 );
@@ -280,7 +285,7 @@ var filter = PocketBase.Filter(
     }
 );
 
-var record = await _pocketBase.Collection("example").GetList<RecordModel>(filter: filter);
+var record = await pb.Collection("example").GetList<RecordModel>(filter: filter);
 ```
 
 ### Extension Methods
@@ -293,7 +298,7 @@ One of them is the `ContinueWithOnMainThread` method, which allows you to run a 
 private Text _title;
 
 // This will run on the main thread
-_pocketBase.Collection("users").AuthWithPassword("user@example.com", "password").ContinueWithOnMainThread(task => 
+pb.Collection("users").AuthWithPassword("user@example.com", "password").ContinueWithOnMainThread(task => 
 {
     if (task.IsFaulted)
     {
