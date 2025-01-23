@@ -28,7 +28,7 @@ namespace PocketBaseSdk
                 "/api/settings",
                 query: query,
                 headers: headers
-            );
+            ).ContinueWith(t => t.Result.ToObject<Dictionary<string, object>>());
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace PocketBaseSdk
                 body: body,
                 query: query,
                 headers: headers
-            );
+            ).ContinueWith(t => t.Result.ToObject<Dictionary<string, object>>());
         }
 
         /// <summary>

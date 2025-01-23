@@ -68,8 +68,9 @@ namespace PocketBaseSdk
                 query: query,
                 headers: headers
             );
-            
+
             FileToken tokenResult = jObj.ToObject<FileToken>();
+
             return tokenResult.Token;
         }
 

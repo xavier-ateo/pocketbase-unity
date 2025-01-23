@@ -1,21 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine.Networking;
 using static UnityEngine.Networking.UnityWebRequest.Result;
-using Debug = UnityEngine.Debug;
 
 namespace PocketBaseSdk
 {
     public class PocketBase
     {
         public AuthStore AuthStore { get; }
+        public AdminService Admins { get; }
         public CollectionService Collections { get; }
         public FileService Files { get; }
         public HealthService Health { get; }
@@ -34,6 +32,7 @@ namespace PocketBaseSdk
         {
             AuthStore = authStore ?? new();
 
+            Admins = new AdminService(this);
             Collections = new CollectionService(this);
             Files = new FileService(this);
             Health = new HealthService(this);
@@ -97,7 +96,6 @@ namespace PocketBaseSdk
 
             try
             {
-                Debug.Log("Raw: " + req.downloadHandler.text);
                 var record = JObject.Parse(req.downloadHandler.text);
                 return record;
             }
@@ -249,9 +247,5 @@ namespace PocketBaseSdk
 
             return request;
         }
-    }
-
-    public readonly struct Void
-    {
     }
 }

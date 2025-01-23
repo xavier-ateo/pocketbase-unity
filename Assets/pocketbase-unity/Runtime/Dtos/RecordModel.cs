@@ -24,12 +24,10 @@ namespace PocketBaseSdk
         public DateTime? Updated { get; private set; }
 
         [JsonExtensionData]
-        private IDictionary<string, JToken> _additionalData { get; set; }
+        private IDictionary<string, JToken> _additionalData;
+
+        public JToken this[string key] => _additionalData.TryGetValue(key, out var value) ? value : null;
 
         public override string ToString() => JsonConvert.SerializeObject(this);
-
-        public object this[string key] => _additionalData.TryGetValue(key, out var token)
-            ? token
-            : null;
     }
 }

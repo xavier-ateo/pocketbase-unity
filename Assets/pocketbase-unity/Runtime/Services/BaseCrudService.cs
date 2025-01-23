@@ -6,17 +6,22 @@ using UnityEngine.Networking;
 
 namespace PocketBaseSdk
 {
-    public abstract class BaseCrudService : BaseService
+    /// <summary>
+    /// Base generic crud service that is intended to be used by all other crud services.
+    /// </summary>
+    /// <typeparam name="T">The type of entity being managed by the CRUD service.</typeparam>
+    public abstract class BaseCrudService<T> : BaseService
     {
         protected abstract string BaseCrudPath { get; }
-
-        private static readonly IReadOnlyDictionary<string, object> EmptyData = new Dictionary<string, object>();
 
         protected BaseCrudService(PocketBase client) : base(client)
         {
         }
 
-        public Task<List<T>> GetFullList<T>(
+        /// <summary>
+        /// Returns a list with all items batch fetched at once.
+        /// </summary>
+        public Task<List<T>> GetFullList(
             int batch = 500,
             string expand = null,
             string filter = null,
@@ -29,7 +34,7 @@ namespace PocketBaseSdk
 
             async Task<List<T>> Request(int page)
             {
-                var list = await GetList<T>(
+                var list = await GetList(
                     skipTotal: true,
                     page: page,
                     perPage: batch,
@@ -54,7 +59,7 @@ namespace PocketBaseSdk
             return Request(1);
         }
 
-        public Task<ResultList<T>> GetList<T>(
+        public Task<ResultList<T>> GetList(
             int page = 1,
             int perPage = 30,
             bool skipTotal = false,
@@ -81,7 +86,7 @@ namespace PocketBaseSdk
             ).ContinueWith(t => t.Result.ToObject<ResultList<T>>());
         }
 
-        public Task<T> GetOne<T>(
+        public Task<T> GetOne(
             string id,
             string expand = null,
             string fields = null,
@@ -98,7 +103,7 @@ namespace PocketBaseSdk
                     {
                         ["code"] = 404,
                         ["message"] = "Missing required record id.",
-                        ["data"] = EmptyData
+                        ["data"] = new()
                     }
                 );
             }
@@ -114,14 +119,14 @@ namespace PocketBaseSdk
             ).ContinueWith(t => t.Result.ToObject<T>());
         }
 
-        public async Task<T> GetFirstListItem<T>(
+        public async Task<T> GetFirstListItem(
             string filter,
             string expand = null,
             string fields = null,
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            var result = await GetList<T>(
+            var result = await GetList(
                 perPage: 1,
                 skipTotal: true,
                 filter: filter,
@@ -141,7 +146,7 @@ namespace PocketBaseSdk
                     {
                         ["code"] = 404,
                         ["message"] = "The requested resource wasn't found.",
-                        ["data"] = EmptyData
+                        ["data"] = new()
                     }
                 );
             }
@@ -149,7 +154,7 @@ namespace PocketBaseSdk
             return result.Items.First();
         }
 
-        public Task<T> Create<T>(
+        public Task<T> Create(
             object body,
             Dictionary<string, object> query = null,
             List<IMultipartFormSection> files = null,
@@ -171,7 +176,7 @@ namespace PocketBaseSdk
             ).ContinueWith(t => t.Result.ToObject<T>());
         }
 
-        public virtual Task<T> Update<T>(
+        public virtual Task<T> Update(
             string id,
             object body = null,
             Dictionary<string, object> query = null,
@@ -206,149 +211,6 @@ namespace PocketBaseSdk
                 body: body,
                 query: query,
                 headers: headers
-            );
-        }
-    }
-
-    /// <summary>
-    /// Provides a generic base implementation for CRUD (Create, Read, Update, Delete) operations.
-    /// </summary>
-    /// <remarks>
-    /// The generic version simplifies creating type-specific services by removing the need to specify the type parameter
-    /// in every method call.
-    /// </remarks>
-    /// <typeparam name="T">The type of entity being managed by the CRUD service.</typeparam>
-    public abstract class BaseCrudService<T> : BaseCrudService
-    {
-        protected BaseCrudService(PocketBase client) : base(client)
-        {
-        }
-
-        public Task<List<T>> GetFullList(
-            int batch = 500,
-            string expand = null,
-            string filter = null,
-            string sort = null,
-            string fields = null,
-            Dictionary<string, object> query = null,
-            Dictionary<string, string> headers = null)
-        {
-            return base.GetFullList<T>(
-                batch,
-                expand,
-                filter,
-                sort,
-                fields,
-                query,
-                headers
-            );
-        }
-
-        public Task<ResultList<T>> GetList(
-            int page = 1,
-            int perPage = 30,
-            bool skipTotal = false,
-            string expand = null,
-            string filter = null,
-            string sort = null,
-            string fields = null,
-            Dictionary<string, object> query = null,
-            Dictionary<string, string> headers = null)
-        {
-            return base.GetList<T>(
-                page,
-                perPage,
-                skipTotal,
-                expand,
-                filter,
-                sort,
-                fields,
-                query,
-                headers
-            );
-        }
-
-        public Task<T> GetOne(
-            string id,
-            string expand = null,
-            string fields = null,
-            Dictionary<string, object> query = null,
-            Dictionary<string, string> headers = null)
-        {
-            return base.GetOne<T>(
-                id,
-                expand,
-                fields,
-                query,
-                headers
-            );
-        }
-
-        public Task<T> GetFirstListItem(
-            string filter,
-            string expand = null,
-            string fields = null,
-            Dictionary<string, object> query = null,
-            Dictionary<string, string> headers = null)
-        {
-            return base.GetFirstListItem<T>(
-                filter,
-                expand,
-                fields,
-                query,
-                headers
-            );
-        }
-
-        public Task<T> Create(
-            object body,
-            Dictionary<string, object> query = null,
-            List<IMultipartFormSection> files = null,
-            Dictionary<string, string> headers = null,
-            string expand = null,
-            string fields = null)
-        {
-            return base.Create<T>(
-                body,
-                query,
-                files,
-                headers,
-                expand,
-                fields
-            );
-        }
-
-        public Task<T> Update(
-            string id,
-            object body = null,
-            Dictionary<string, object> query = null,
-            List<IMultipartFormSection> files = null,
-            Dictionary<string, string> headers = null,
-            string expand = null,
-            string fields = null)
-        {
-            return base.Update<T>(
-                id,
-                body,
-                query,
-                files,
-                headers,
-                expand,
-                fields
-            );
-        }
-
-        public new Task Delete(
-            string id,
-            object body = null,
-            Dictionary<string, object> query = null,
-            Dictionary<string, string> headers = null)
-        {
-            return base.Delete(
-                id,
-                body,
-                query,
-                headers
             );
         }
     }

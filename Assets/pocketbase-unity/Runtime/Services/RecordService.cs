@@ -5,14 +5,13 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Linq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEngine.Networking;
 
 namespace PocketBaseSdk
 {
     public delegate void RecordSubscriptionFunc<T>(RecordSubscriptionEvent<T> e);
 
-    public class RecordService : BaseCrudService
+    public class RecordService : BaseCrudService<RecordModel>
     {
         public RecordService(PocketBase client, string collectionIdOrName) : base(client)
         {
@@ -94,7 +93,7 @@ namespace PocketBaseSdk
         /// If the current AuthStore model matches with the updated id, then
         /// on success the client AuthStore will be updated with the result model.
         /// </remarks>
-        public override async Task<T> Update<T>(
+        public override async Task<RecordModel> Update(
             string id,
             object body = null,
             Dictionary<string, object> query = null,
@@ -102,11 +101,11 @@ namespace PocketBaseSdk
             Dictionary<string, string> headers = null,
             string expand = null, string fields = null)
         {
-            var item = await base.Update<T>(id, body, query, files, headers, expand, fields);
+            var item = await base.Update(id, body, query, files, headers, expand, fields);
 
-            if (item is RecordModel record &&
-                _client.AuthStore.Record is not null &&
-                _client.AuthStore.Record.Id == record.Id)
+            if (item is { } record &&
+                _client.AuthStore.Model is not null &&
+                _client.AuthStore.Model.Id == record.Id)
             {
                 _client.AuthStore.Save(_client.AuthStore.Token, record);
             }
@@ -129,7 +128,7 @@ namespace PocketBaseSdk
         {
             await base.Delete(id, body, query, headers);
 
-            if (_client.AuthStore.Record is { } model &&
+            if (_client.AuthStore.Model is { } model &&
                 model.Id == id &&
                 new[] { model.CollectionId, model.CollectionName }.Contains(_collectionIdOrName))
             {
@@ -179,7 +178,7 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("expand", expand);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            JObject jObj = await _client.Send(
+            var jObj = await _client.Send(
                 $"{BaseCollectionPath}/auth-with-password",
                 method: "POST",
                 body: enrichedBody,
@@ -295,7 +294,7 @@ namespace PocketBaseSdk
             var payload = JsonConvert.DeserializeObject<Dictionary<string, object>>(
                 Encoding.UTF8.GetString(Convert.FromBase64String(payloadPart)));
 
-            if (_client.AuthStore.Record is UserModel { Verified: false } userModel &&
+            if (_client.AuthStore.Model is UserModel { Verified: false } userModel &&
                 userModel.Id == (string)payload["id"] &&
                 userModel.CollectionId == (string)payload["collectionId"])
             {
@@ -362,7 +361,7 @@ namespace PocketBaseSdk
             var payload = JsonConvert.DeserializeObject<Dictionary<string, object>>(
                 Encoding.UTF8.GetString(Convert.FromBase64String(payloadPart)));
 
-            if (_client.AuthStore.Record is { } model &&
+            if (_client.AuthStore.Model is { } model &&
                 model.Id == (string)payload["id"] &&
                 model.CollectionId == (string)payload["collectionId"])
             {
@@ -435,15 +434,15 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("expand", expand);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            JObject jObj = await _client.Send(
+            var jObj = await _client.Send(
                 $"{BaseCollectionPath}/auth-with-oauth2",
                 method: "POST",
                 body: enrichedBody,
                 query: enrichedQuery,
                 headers: headers
             );
-            
-            RecordAuth authResult = jObj.ToObject<RecordAuth>();
+
+            var authResult = jObj.ToObject<RecordAuth>();
 
             _client.AuthStore.Save(authResult.Token, authResult.Record);
 
@@ -468,7 +467,7 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("expand", expand);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            JObject jObj = await _client.Send(
+            var jObj = await _client.Send(
                 $"{BaseCollectionPath}/auth-refresh",
                 method: "POST",
                 body: body,
@@ -476,8 +475,8 @@ namespace PocketBaseSdk
                 headers: headers
             );
             
-            RecordAuth authResult = jObj.ToObject<RecordAuth>();
-            
+            var authResult = jObj.ToObject<RecordAuth>();
+
             _client.AuthStore.Save(authResult.Token, authResult.Record);
 
             return authResult;
