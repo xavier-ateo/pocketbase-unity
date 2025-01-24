@@ -63,7 +63,7 @@ namespace PocketBaseSdk
             object body = null,
             List<IMultipartFormSection> files = null)
         {
-            Uri url = BuildUrl(path, query);
+            var url = BuildUrl(path, query);
 
             headers ??= new();
             headers.TryAdd("Accept-Language", _lang);
@@ -141,7 +141,7 @@ namespace PocketBaseSdk
             return expr;
         }
 
-        public Uri BuildUrl(string path, Dictionary<string, object> queryParameters = null)
+        public string BuildUrl(string path, Dictionary<string, object> queryParameters = null)
         {
             string url = _baseUrl + (_baseUrl.EndsWith("/") ? "" : "/");
 
@@ -152,12 +152,33 @@ namespace PocketBaseSdk
 
             string query = NormalizeQueryParameters(queryParameters);
 
-            var uriBuilder = new UriBuilder(url)
+            if (!string.IsNullOrEmpty(query))
             {
-                Query = string.IsNullOrEmpty(query) ? string.Empty : query
-            };
+                url += "?" + query;
+            }
 
-            return uriBuilder.Uri;
+            return url;
+        }
+
+        /// <summary>
+        /// Creates a new batch handler for sending multiple transactional
+        /// create/update/upsert/delete collection requests in one network call.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// var batch = pb.CreateBatch();
+        ///
+        /// batch.Collection("example1").Create(body: ...);
+        /// batch.Collection("example1").Update("RECORD_ID", body: ...);
+        /// batch.Collection("example1").Delete("RECORD_ID", body: ...);
+        /// batch.Collection("example1").Upsert(body: ...);
+        ///
+        /// await batch.Send();
+        /// </code>
+        /// </example>
+        public BatchService CreateBatch()
+        {
+            return new BatchService(this);
         }
 
         private string NormalizeQueryParameters(Dictionary<string, object> queryParameters)
@@ -179,7 +200,7 @@ namespace PocketBaseSdk
 
         private UnityWebRequest JsonRequest(
             string method,
-            Uri url,
+            string url,
             Dictionary<string, string> headers = null,
             object body = null)
         {
@@ -213,7 +234,7 @@ namespace PocketBaseSdk
 
         private UnityWebRequest MultipartRequest(
             string method,
-            Uri url,
+            string url,
             Dictionary<string, string> headers,
             object body,
             List<IMultipartFormSection> files)

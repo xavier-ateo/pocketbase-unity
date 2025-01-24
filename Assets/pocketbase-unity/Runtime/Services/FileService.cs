@@ -25,7 +25,7 @@ namespace PocketBaseSdk
         /// <summary>
         /// Builds and returns an absolute URL for the specified file.
         /// </summary>
-        public Uri GetUrl(
+        public string GetUrl(
             RecordModel record,
             string fileName,
             string thumb = null,
@@ -35,7 +35,7 @@ namespace PocketBaseSdk
         {
             if (string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(record?.Id))
             {
-                return EmptyUri;
+                return string.Empty;
             }
 
             Dictionary<string, object> enrichedQuery = new(query ?? new());

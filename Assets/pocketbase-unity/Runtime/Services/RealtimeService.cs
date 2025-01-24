@@ -230,7 +230,7 @@ namespace PocketBaseSdk
             Disconnect();
 
             var completer = new TaskCompletionSource<bool>();
-            string url = _client.BuildUrl("/api/realtime").AbsoluteUri;
+            string url = _client.BuildUrl("/api/realtime");
 
             _sse = new SseClient(url);
             _sse.OnClose += () =>
