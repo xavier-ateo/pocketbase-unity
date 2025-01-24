@@ -13,7 +13,7 @@ namespace PocketBaseSdk
         public object OriginalError { get; }
 
         public ClientException(
-            Uri url,
+            Uri url = null,
             int statusCode = 0,
             Dictionary<string, object> response = null,
             object originalError = null)

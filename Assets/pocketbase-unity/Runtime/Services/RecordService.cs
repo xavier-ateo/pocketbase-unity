@@ -5,11 +5,14 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Linq;
 using Newtonsoft.Json;
+using Unity.Plastic.Newtonsoft.Json.Linq;
 using UnityEngine.Networking;
 
 namespace PocketBaseSdk
 {
     public delegate void RecordSubscriptionFunc<T>(RecordSubscriptionEvent<T> e);
+
+    public delegate void OAuth2UrlCallbackFunc(Uri url);
 
     public class RecordService : BaseCrudService<RecordModel>
     {
@@ -159,7 +162,7 @@ namespace PocketBaseSdk
         /// and returns a new auth token and record data.
         /// </summary>
         /// <remarks>
-        /// On success this method automatically updates the client's AuthStore.
+        /// On success, this method automatically updates the client's AuthStore.
         /// </remarks>
         public async Task<RecordAuth> AuthWithPassword(
             string usernameOrEmail,
@@ -187,7 +190,7 @@ namespace PocketBaseSdk
             );
 
             var authResult = jObj.ToObject<RecordAuth>();
-            
+
             _client.AuthStore.Save(authResult.Token, authResult.Record);
 
             return authResult;
@@ -264,7 +267,7 @@ namespace PocketBaseSdk
         /// Confirms auth record email verification request.
         /// </summary>
         /// <remarks>
-        /// On success this method automatically updates the client's AuthStore.
+        /// On success, this method automatically updates the client's AuthStore.
         /// </remarks>
         public async Task ConfirmVerification(
             string verificationToken,
@@ -409,7 +412,7 @@ namespace PocketBaseSdk
         /// a new auth token and record data (including the OAuth2 user profile).
         /// </summary>
         /// <remarks>
-        /// On success this method automatically updates the client's AuthStore.
+        /// On success, this method automatically updates the client's AuthStore.
         /// </remarks>
         public async Task<RecordAuth> AuthWithOAuth2Code(
             string provider,
@@ -450,11 +453,129 @@ namespace PocketBaseSdk
         }
 
         /// <summary>
+        /// Authenticate a single auth collection record with OAuth2 without custom redirects,
+        /// deep-links or even page reload.
+        /// </summary>
+        /// 
+        /// <remarks>
+        /// <para>
+        /// This method initializes a one-off realtime subscription
+        /// and will call <see cref="urlCallback"/> with the OAuth2 vendor url to authenticate.
+        /// Once the external OAuth2 sign-in/sign-up flow is completed,
+        /// the popup window will be automatically closed and the OAuth2 data sent back
+        /// to the user through the previously established realtime connection.
+        /// </para>
+        /// <para>
+        /// On success, this method automatically updates the client's AuthStore.
+        /// </para>
+        /// <para>
+        /// Note: when creating the OAuth2 app in the provider dashboard,
+        /// you have to configure `https://yourdomain.com/api/oauth2-redirect` as redirectURL.
+        /// </para>
+        /// </remarks>
+        /// <example> 
+        /// <code>
+        /// await pb.collection('users').authWithOAuth2('google', url => {
+        ///   Application.OpenUrl(url);
+        /// });
+        /// </code> 
+        /// </example>
+        public Task<RecordAuth> AuthWithOAuth2(
+            string providerName,
+            OAuth2UrlCallbackFunc urlCallback,
+            List<string> scopes = null,
+            Dictionary<string, object> createData = null,
+            string expand = null,
+            string fields = null)
+        {
+            TaskCompletionSource<RecordAuth> completer = new();
+
+            _ = Task.Run(async () =>
+            {
+                UnsubscribeFunc unsubscribeFunc = null;
+
+                try
+                {
+                    var authMethods = await ListAuthMethods();
+
+                    var provider = authMethods.AuthProviders.FirstOrDefault(p => p.Name == providerName)
+                                   ?? throw new ClientException(originalError: $"Missing provider {providerName}");
+
+                    var redirectUrl = _client.BuildUrl("/api/oauth2-redirect");
+
+                    unsubscribeFunc = await _client.Realtime.Subscribe(
+                        "@oauth2",
+                        e => HandleMessage(e, unsubscribeFunc),
+                        expand: expand,
+                        fields: fields
+                    );
+
+                    var authUrl = new Uri(provider.AuthUrl + redirectUrl);
+                    var queryParameters = HttpUtility.ParseQueryString(authUrl.Query);
+                    queryParameters["state"] = _client.Realtime.ClientId;
+
+                    if (scopes?.Any() is true)
+                    {
+                        queryParameters["scope"] = string.Join(" ", scopes);
+                    }
+
+                    var builder = new UriBuilder(authUrl) { Query = queryParameters.ToString() };
+                    var finalAuthUrl = builder.Uri;
+
+                    urlCallback(finalAuthUrl);
+
+                    async void HandleMessage(SseMessage e, UnsubscribeFunc unsubFunc)
+                    {
+                        try
+                        {
+                            string oldState = _client.Realtime.ClientId;
+
+                            var eventData = JObject.Parse(e.Data);
+                            string code = (string)eventData["code"] ?? "";
+                            string state = (string)eventData["state"] ?? "";
+                            string error = (string)eventData["error"] ?? "";
+
+                            if (string.IsNullOrEmpty(state) || state != oldState)
+                                throw new InvalidOperationException("State parameters don't match.");
+
+                            if (!string.IsNullOrEmpty(error) || string.IsNullOrEmpty(code))
+                                throw new InvalidOperationException("OAuth2 redirect error or missing code.");
+
+                            var auth = await AuthWithOAuth2Code(
+                                provider.Name,
+                                code,
+                                provider.CodeVerifier,
+                                redirectUrl.ToString(),
+                                createData,
+                                expand: expand,
+                                fields: fields
+                            );
+
+                            completer.TrySetResult(auth);
+                            unsubFunc?.Invoke();
+                        }
+                        catch (Exception ex)
+                        {
+                            completer.TrySetException(new ClientException(originalError: ex));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    completer.TrySetException(new ClientException(originalError: ex));
+                    unsubscribeFunc?.Invoke();
+                }
+            });
+
+            return completer.Task;
+        }
+
+        /// <summary>
         /// Refreshes the current authenticated auth record instance and
         /// returns a new token and record data.
         /// </summary>
         /// <remarks>
-        /// On success this method automatically updates the client's AuthStore.
+        /// On success, this method automatically updates the client's AuthStore.
         /// </remarks>
         public async Task<RecordAuth> AuthRefresh(
             string expand = null,
@@ -474,7 +595,7 @@ namespace PocketBaseSdk
                 query: enrichedQuery,
                 headers: headers
             );
-            
+
             var authResult = jObj.ToObject<RecordAuth>();
 
             _client.AuthStore.Save(authResult.Token, authResult.Record);
