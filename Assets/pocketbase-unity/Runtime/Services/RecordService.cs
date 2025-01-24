@@ -144,12 +144,18 @@ namespace PocketBaseSdk
         /// Returns all available application auth methods.
         /// </summary>
         public Task<AuthMethodList> ListAuthMethods(
+            string fields = null,
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
+            Dictionary<string, object> enrichedQuery = new(query ?? new())
+            {
+                ["fields"] = "mfa,otp,password,oauth2"
+            };
+
             return _client.Send(
                 $"{BaseCollectionPath}/auth-methods",
-                query: query,
+                query: enrichedQuery,
                 headers: headers
             ).ContinueWith(t => t.Result.ToObject<AuthMethodList>());
         }
@@ -187,7 +193,7 @@ namespace PocketBaseSdk
             );
 
             var authResult = jObj.ToObject<RecordAuth>();
-            
+
             _client.AuthStore.Save(authResult.Token, authResult.Record);
 
             return authResult;
@@ -474,7 +480,7 @@ namespace PocketBaseSdk
                 query: enrichedQuery,
                 headers: headers
             );
-            
+
             var authResult = jObj.ToObject<RecordAuth>();
 
             _client.AuthStore.Save(authResult.Token, authResult.Record);

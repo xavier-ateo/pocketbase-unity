@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Codice.Utils;
-using Newtonsoft.Json.Linq;
 using UnityEngine.Networking;
 
 namespace PocketBaseSdk
