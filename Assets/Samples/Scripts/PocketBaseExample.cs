@@ -50,7 +50,7 @@ public class PocketBaseExample : MonoBehaviour
     {
         _pocketBase
             .Collection("Posts")
-            .GetOne<RecordModel>("3g28fsld3arvpaz")
+            .GetOne("3g28fsld3arvpaz")
             .ContinueWithOnMainThread(t =>
             {
                 if (t.IsFaulted)

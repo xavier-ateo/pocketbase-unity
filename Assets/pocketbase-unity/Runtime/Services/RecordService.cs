@@ -104,8 +104,8 @@ namespace PocketBaseSdk
             var item = await base.Update(id, body, query, files, headers, expand, fields);
 
             if (item is { } record &&
-                _client.AuthStore.Model is not null &&
-                _client.AuthStore.Model.Id == record.Id)
+                _client.AuthStore.Record is { } &&
+                _client.AuthStore.Record.Id == record.Id)
             {
                 _client.AuthStore.Save(_client.AuthStore.Token, record);
             }
@@ -128,7 +128,7 @@ namespace PocketBaseSdk
         {
             await base.Delete(id, body, query, headers);
 
-            if (_client.AuthStore.Model is { } model &&
+            if (_client.AuthStore.Record is { } model &&
                 model.Id == id &&
                 new[] { model.CollectionId, model.CollectionName }.Contains(_collectionIdOrName))
             {
@@ -294,7 +294,7 @@ namespace PocketBaseSdk
             var payload = JsonConvert.DeserializeObject<Dictionary<string, object>>(
                 Encoding.UTF8.GetString(Convert.FromBase64String(payloadPart)));
 
-            if (_client.AuthStore.Model is UserModel { Verified: false } userModel &&
+            if (_client.AuthStore.Record is UserModel { Verified: false } userModel &&
                 userModel.Id == (string)payload["id"] &&
                 userModel.CollectionId == (string)payload["collectionId"])
             {
@@ -361,7 +361,7 @@ namespace PocketBaseSdk
             var payload = JsonConvert.DeserializeObject<Dictionary<string, object>>(
                 Encoding.UTF8.GetString(Convert.FromBase64String(payloadPart)));
 
-            if (_client.AuthStore.Model is { } model &&
+            if (_client.AuthStore.Record is { } model &&
                 model.Id == (string)payload["id"] &&
                 model.CollectionId == (string)payload["collectionId"])
             {

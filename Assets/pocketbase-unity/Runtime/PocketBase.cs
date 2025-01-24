@@ -13,7 +13,6 @@ namespace PocketBaseSdk
     public class PocketBase
     {
         public AuthStore AuthStore { get; }
-        public AdminService Admins { get; }
         public CollectionService Collections { get; }
         public FileService Files { get; }
         public HealthService Health { get; }
@@ -32,7 +31,6 @@ namespace PocketBaseSdk
         {
             AuthStore = authStore ?? new();
 
-            Admins = new AdminService(this);
             Collections = new CollectionService(this);
             Files = new FileService(this);
             Health = new HealthService(this);

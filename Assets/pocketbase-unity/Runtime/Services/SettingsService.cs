@@ -20,7 +20,7 @@ namespace PocketBaseSdk
         /// <summary>
         /// Fetch all available app settings.
         /// </summary>
-        public Task<JObject> GetAll(
+        public Task<Dictionary<string, object>> GetAll(
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
@@ -34,7 +34,7 @@ namespace PocketBaseSdk
         /// <summary>
         /// Bulk update app settings.
         /// </summary>
-        public Task<JObject> Update(
+        public Task<Dictionary<string, object>> Update(
             Dictionary<string, object> body,
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
