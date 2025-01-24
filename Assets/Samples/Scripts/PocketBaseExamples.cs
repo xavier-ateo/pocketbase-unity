@@ -23,7 +23,7 @@ public class PocketBaseExamples : MonoBehaviour
 
         _pb = new PocketBase(_pocketBaseUrl, authStore: AsyncAuthStore.PlayerPrefs);
     }
-    
+
     [ContextMenu(nameof(HealthCheck))]
     private void HealthCheck()
     {
@@ -33,10 +33,16 @@ public class PocketBaseExamples : MonoBehaviour
             {
                 Debug.LogError(t.Exception);
             }
-            
+
             HealthCheck health = t.Result;
             Debug.Log(health);
         });
+    }
+
+    [ContextMenu(nameof(LoginWithGoogle))]
+    private void LoginWithGoogle()
+    {
+        _pb.Collection("users").AuthWithOAuth2("google", Debug.Log);
     }
 
     [ContextMenu(nameof(Login))]
@@ -55,7 +61,7 @@ public class PocketBaseExamples : MonoBehaviour
                 Debug.Log(user.Record.ToString());
             });
     }
-    
+
     [ContextMenu(nameof(GetFullList))]
     private void GetFullList()
     {
@@ -72,7 +78,7 @@ public class PocketBaseExamples : MonoBehaviour
                 }
 
                 List<RecordModel> posts = t.Result;
-                
+
                 foreach (var post in posts)
                 {
                     Debug.Log(post);

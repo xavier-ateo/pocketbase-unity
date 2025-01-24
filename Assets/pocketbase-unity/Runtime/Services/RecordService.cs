@@ -6,6 +6,7 @@ using System.Web;
 using System.Linq;
 using Newtonsoft.Json;
 using Unity.Plastic.Newtonsoft.Json.Linq;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace PocketBaseSdk
@@ -490,7 +491,7 @@ namespace PocketBaseSdk
         {
             TaskCompletionSource<RecordAuth> completer = new();
 
-            _ = Task.Run(async () =>
+            MainThreadDispatcher.Instance.Enqueue(async () =>
             {
                 UnsubscribeFunc unsubscribeFunc = null;
 
