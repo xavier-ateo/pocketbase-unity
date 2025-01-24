@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Linq;
 using Newtonsoft.Json;
-using Unity.Plastic.Newtonsoft.Json.Linq;
-using UnityEngine;
+using Newtonsoft.Json.Linq;
 using UnityEngine.Networking;
 
 namespace PocketBaseSdk
