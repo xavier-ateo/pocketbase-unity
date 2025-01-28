@@ -505,7 +505,7 @@ namespace PocketBaseSdk
                 {
                     var authMethods = await ListAuthMethods();
 
-                    var provider = authMethods.AuthProviders.FirstOrDefault(p => p.Name == providerName)
+                    var provider = authMethods.OAuth2.Providers.FirstOrDefault(p => p.Name == providerName)
                                    ?? throw new ClientException(originalError: $"Missing provider {providerName}");
 
                     var redirectUrl = _client.BuildUrl("/api/oauth2-redirect");
@@ -575,6 +575,69 @@ namespace PocketBaseSdk
             });
 
             return completer.Task;
+        }
+
+        /// <summary>
+        /// Sends auth record OTP request to the provided email.
+        /// </summary>
+        public Task<OTPResponse> RequestOTP(
+            string email,
+            Dictionary<string, object> body = null,
+            Dictionary<string, object> query = null,
+            Dictionary<string, string> headers = null)
+        {
+            Dictionary<string, object> enrichedBody = new(query ?? new());
+
+            if (!string.IsNullOrEmpty(email))
+                enrichedBody.TryAdd("email", email);
+
+            return _client.Send(
+                $"{BaseCollectionPath}/request-otp",
+                method: "POST",
+                body: enrichedBody,
+                query: query,
+                headers: headers
+            ).ContinueWith(t => t.Result.ToObject<OTPResponse>());
+        }
+
+        /// <summary>
+        /// Authenticate an auth record via OTP.
+        /// </summary>
+        /// <remarks>
+        /// On success, this method automatically updates the client's AuthStore.
+        /// </remarks>
+        public Task<RecordAuth> AuthWithOTP(
+            string otpId,
+            string password,
+            string expand = null,
+            string fields = null,
+            Dictionary<string, object> body = null,
+            Dictionary<string, object> query = null,
+            Dictionary<string, string> headers = null)
+        {
+            Dictionary<string, object> enrichedBody = new(body ?? new());
+
+            if (!string.IsNullOrEmpty(otpId))
+                enrichedBody.TryAdd(nameof(otpId), otpId);
+
+            if (!string.IsNullOrEmpty(password))
+                enrichedBody.TryAdd(nameof(password), password);
+
+            Dictionary<string, object> enrichedQuery = new(query ?? new());
+
+            if (!string.IsNullOrEmpty(expand))
+                enrichedQuery.TryAdd(nameof(expand), expand);
+
+            if (!string.IsNullOrEmpty(fields))
+                enrichedQuery.TryAdd(nameof(fields), fields);
+
+            return _client.Send(
+                $"{BaseCollectionPath}/auth-with-otp",
+                method: "POST",
+                body: enrichedBody,
+                query: enrichedQuery,
+                headers: headers
+            ).ContinueWith(t => t.Result.ToObject<RecordAuth>());
         }
 
         /// <summary>

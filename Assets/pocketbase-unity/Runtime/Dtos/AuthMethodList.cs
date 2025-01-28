@@ -1,23 +1,21 @@
 using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace PocketBaseSdk
 {
     [Serializable]
-
     public class AuthMethodList
     {
-        [JsonProperty("usernamePassword")]
-        public bool UsernamePassword { get; private set; }
+        [JsonProperty("mfa")]
+        public AuthMethodMFA MFA { get; private set; } = new();
 
-        [JsonProperty("emailPassword")]
-        public bool EmailPassword { get; private set; }
+        [JsonProperty("otp")]
+        public AuthMethodOTP OTP { get; private set; } = new();
 
-        [JsonProperty("onlyVerified")]
-        public bool OnlyVerified { get; private set; }
+        [JsonProperty("password")]
+        public AuthMethodPassword Password { get; private set; } = new();
 
-        [JsonProperty("authProviders")]
-        public List<AuthMethodProvider> AuthProviders { get; private set; }
+        [JsonProperty("oauth2")]
+        public AuthMethodOAuth2 OAuth2 { get; private set; } = new();
     }
 }

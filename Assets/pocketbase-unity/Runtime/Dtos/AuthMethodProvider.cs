@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 namespace PocketBaseSdk
 {
     [Serializable]
-
     public class AuthMethodProvider
     {
         [JsonProperty("name")]
@@ -27,5 +26,10 @@ namespace PocketBaseSdk
 
         [JsonProperty("authUrl")]
         public string AuthUrl { get; private set; } = string.Empty;
+
+        [JsonProperty("pkce")]
+        public bool? Pkce { get; private set; }
+
+        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }
