@@ -1,7 +1,14 @@
-public sealed class SseMessage
+using Newtonsoft.Json;
+
+namespace PocketBaseSdk
 {
-    public string Id { get; set; } = string.Empty;
-    public string Event { get; set; } = "message";
-    public string Data { get; set; } = string.Empty;
-    public int Retry;
+    public sealed class SseMessage
+    {
+        public string Id = string.Empty;
+        public string Event = "message";
+        public string Data = string.Empty;
+        public int Retry;
+
+        public override string ToString() => JsonConvert.SerializeObject(this);
+    }
 }

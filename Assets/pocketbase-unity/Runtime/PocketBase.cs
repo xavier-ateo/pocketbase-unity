@@ -97,7 +97,7 @@ namespace PocketBaseSdk
                 var record = JObject.Parse(req.downloadHandler.text);
                 return record;
             }
-            catch (JsonSerializationException)
+            catch (Exception)
             {
                 return null;
             }

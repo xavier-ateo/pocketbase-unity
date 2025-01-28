@@ -7,13 +7,13 @@ namespace PocketBaseSdk
     [Serializable]
     public class ClientException : Exception
     {
-        public string URL { get; }
+        public Uri URL { get; }
         public int StatusCode { get; }
         public Dictionary<string, object> Response { get; }
         public object OriginalError { get; }
 
         public ClientException(
-            string url,
+            Uri url = null,
             int statusCode = 0,
             Dictionary<string, object> response = null,
             object originalError = null)

@@ -5,12 +5,12 @@ namespace PocketBaseSdk
 {
     [Serializable]
 
-    public class RecordSubscriptionEvent<T>
+    public class RecordSubscriptionEvent
     {
         [JsonProperty("action")]
         public string Action { get; set; }
 
         [JsonProperty("record")]
-        public T Record { get; set; }
+        public RecordModel Record { get; set; }
     }
 }

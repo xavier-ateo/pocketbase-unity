@@ -7,211 +7,148 @@ using UnityEngine;
 using UnityEngine.Networking;
 using static UnityEngine.Networking.UnityWebRequest.Result;
 
-public class SseClient : IDisposable
+namespace PocketBaseSdk
 {
-    private static readonly List<int> DEFAULT_RETRY_TIMEOUTS = new() { 200, 300, 500, 1000, 1200, 1500, 2000 };
-
-    public event Action<SseMessage> OnMessage;
-    public event Action<WebException> OnError;
-    public event Action OnClose;
-
-    private readonly string _url;
-    private readonly int _maxRetry;
-    private readonly Dictionary<string, string> _customHeaders;
-
-    private bool _isClosed;
-    private int _retryAttempts;
-    private Coroutine _connectionCoroutine;
-
-    // Track the last processed position to prevent duplicate processing
-    private ulong _lastProcessedBytes;
-
-    public SseClient(
-        string url,
-        int maxRetry = int.MaxValue,
-        Dictionary<string, string> headers = null)
+    public class SseClient
     {
-        _url = url;
-        _maxRetry = maxRetry;
-        _customHeaders = headers ?? new Dictionary<string, string>();
+        private static readonly List<int> _defaultRetryTimeouts = new() { 200, 300, 500, 1000, 1200, 1500, 2000 };
 
-        Application.quitting += Dispose;
-    }
+        public event Action<SseMessage> OnMessage;
+        public event Action<WebException> OnError;
+        public event Action OnClose;
 
-    public void Connect()
-    {
-        if (_isClosed)
-            return;
+        private readonly string _url;
+        private readonly int _maxRetry;
+        private readonly Dictionary<string, string> _customHeaders;
 
-        // Stop any existing connection attempt
-        if (_connectionCoroutine != null)
+        private UnityWebRequest _request;
+        private SseMessage _sseMessage;
+        private int _retryAttempts;
+        private Coroutine _connectionCoroutine;
+        private bool _isClosed;
+
+        public SseClient(
+            string url,
+            int maxRetry = int.MaxValue,
+            Dictionary<string, string> headers = null)
         {
-            CoroutineRunner.StopCoroutine(_connectionCoroutine);
+            _url = url;
+            _maxRetry = maxRetry;
+            _customHeaders = headers ?? new Dictionary<string, string>();
+
+            Application.quitting += Close;
         }
 
-        _connectionCoroutine = CoroutineRunner.StartCoroutine(ConnectCoroutine());
-    }
-    
-    public void Close() => Dispose();
-
-    private IEnumerator ConnectCoroutine()
-    {
-        while (!_isClosed)
+        public void Connect()
         {
-            using var request = UnityWebRequest.Get(_url);
+            if (_isClosed)
+                return;
+
+            // Stop any existing connection attempt
+            if (_connectionCoroutine is not null)
+            {
+                CoroutineRunner.StopCoroutine(_connectionCoroutine);
+            }
+
+            _connectionCoroutine = CoroutineRunner.StartCoroutine(ConnectCoroutine());
+        }
+
+        public void Close()
+        {
+            if (_isClosed)
+                return;
+
+            _isClosed = true;
+            _sseMessage = null;
+            _request.Dispose();
+            _request = null;
+
+            Application.quitting -= Close;
+
+            OnMessage = null;
+            OnError = null;
+
+            if (_connectionCoroutine != null)
+            {
+                CoroutineRunner.StopCoroutine(_connectionCoroutine);
+            }
+
+            OnClose?.Invoke();
+            OnClose = null;
+        }
+
+        private IEnumerator ConnectCoroutine()
+        {
+            _sseMessage = new SseMessage();
+            _request = new UnityWebRequest(_url);
 
             foreach (var (key, value) in _customHeaders)
             {
-                request.SetRequestHeader(key, value);
+                _request.SetRequestHeader(key, value);
             }
 
             // Set SSE-specific headers
-            request.SetRequestHeader("Accept", "text/event-stream");
-            request.SetRequestHeader("Cache-Control", "no-cache");
+            _request.SetRequestHeader("Accept", "text/event-stream");
+            _request.SetRequestHeader("Cache-Control", "no-cache");
 
-            request.SendWebRequest();
+            _request.downloadHandler = new DownloadHandlerSseMessage(OnMessageReceived);
+            _request.SendWebRequest();
 
-            // Wait until headers are received
-            while (!request.isDone)
+            while (_request.result is InProgress)
             {
-                // Check if headers are available
-                if (request.responseCode != 0)
-                {
-                    break;
-                }
-
                 yield return null;
             }
 
-            if (request.result is ConnectionError or ProtocolError)
+            if (_request.result is ConnectionError or ProtocolError)
             {
-                OnError?.Invoke(new WebException($"Connection Error: {request.error}",
-                    WebExceptionStatus.ConnectFailure));
-                yield return new WaitForSeconds(GetRetryTimeoutSeconds());
-                continue;
-            }
+                WebException webEx = new(
+                    $"{_request.result}: {_request.error} ({_url})",
+                    _request.result switch
+                    {
+                        ConnectionError => WebExceptionStatus.ConnectFailure,
+                        ProtocolError => WebExceptionStatus.ProtocolError,
+                        _ => WebExceptionStatus.UnknownError
+                    }
+                );
 
-            yield return ProcessStreamedResponseCoroutine(request);
-        }
-    }
+                OnError?.Invoke(webEx);
 
-    private IEnumerator ProcessStreamedResponseCoroutine(UnityWebRequest request)
-    {
-        while (!_isClosed && request.result is InProgress)
-        {
-            // Check if new data is available
-            if (request.downloadedBytes > _lastProcessedBytes)
-            {
-                // Get only the new chunk of data
-                string chunk = request.downloadHandler.text.Substring((int)_lastProcessedBytes);
-
-                ProcessChunk(chunk);
-
-                _lastProcessedBytes = request.downloadedBytes;
-            }
-
-            yield return null;
-        }
-
-        // Handle any final processing or error. Usually triggered on abruptly connection termination
-        // (e.g. when the server goes down).
-        if (request.result is not InProgress)
-        {
-            OnError?.Invoke(new WebException($"Stream ended: {request.error}", WebExceptionStatus.ConnectionClosed));
-            Reconnect();
-        }
-    }
-
-    private void ProcessChunk(string chunk)
-    {
-        if (string.IsNullOrEmpty(chunk))
-            return;
-
-        string[] lines = chunk.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        SseMessage sseMessage = new();
-
-        foreach (string line in lines)
-        {
-            // Comment, ignore
-            if (line.StartsWith(":"))
-                continue;
-
-            // Split each line into field and value at the first occurrence of ':'
-            string[] parts = line.Split(':', 2);
-            string field = parts.ElementAtOrDefault(0)?.Trim();
-            string value = parts.ElementAtOrDefault(1)?.Trim();
-
-            switch (field)
-            {
-                case "id":
-                    sseMessage.Id = value;
-                    break;
-
-                case "event":
-                    sseMessage.Event = value;
-                    break;
-
-                case "retry":
-                    int.TryParse(value, out sseMessage.Retry);
-                    break;
-
-                case "data":
-                    sseMessage.Data = value;
-                    break;
+                yield return Reconnect(_sseMessage.Retry);
             }
         }
 
-        OnMessage?.Invoke(sseMessage);
-    }
-
-    private void Reconnect()
-    {
-        if (_isClosed)
-            return;
-
-        if (_retryAttempts < _maxRetry)
+        private void OnMessageReceived(SseMessage sseMessage)
         {
-            CoroutineRunner.StartCoroutine(ReconnectCoroutine());
-        }
-        else
-        {
-            Dispose();
-        }
-    }
-
-    private IEnumerator ReconnectCoroutine()
-    {
-        yield return new WaitForSeconds(GetRetryTimeoutSeconds());
-        Connect();
-    }
-
-    private float GetRetryTimeoutSeconds()
-    {
-        _retryAttempts++;
-
-        return _retryAttempts > DEFAULT_RETRY_TIMEOUTS.Count - 1
-            ? DEFAULT_RETRY_TIMEOUTS[^1] / 1000f
-            : DEFAULT_RETRY_TIMEOUTS[_retryAttempts] / 1000f;
-    }
-
-    public void Dispose()
-    {
-        if (_isClosed)
-            return;
-
-        _isClosed = true;
-
-        OnMessage = null;
-        OnError = null;
-
-        if (_connectionCoroutine != null)
-        {
-            CoroutineRunner.StopCoroutine(_connectionCoroutine);
+            _sseMessage = sseMessage;
+            OnMessage?.Invoke(sseMessage);
         }
 
-        OnClose?.Invoke();
-        OnClose = null;
+        private IEnumerator Reconnect(int retryTimeout = 0)
+        {
+            if (_isClosed)
+                yield break;
 
-        Application.quitting -= Dispose;
+            if (_retryAttempts >= _maxRetry)
+            {
+                Close();
+                yield break;
+            }
+
+            Debug.Log($"Retrying in {retryTimeout} ms");
+
+            if (retryTimeout <= 0)
+            {
+                if (_retryAttempts > _defaultRetryTimeouts.Count - 1)
+                    retryTimeout = _defaultRetryTimeouts.Last();
+                else
+                    retryTimeout = _defaultRetryTimeouts[_retryAttempts];
+            }
+
+            float retryTimeoutSeconds = retryTimeout / 1000f;
+            yield return new WaitForSeconds(retryTimeoutSeconds);
+
+            _retryAttempts++;
+            Connect();
+        }
     }
 }
