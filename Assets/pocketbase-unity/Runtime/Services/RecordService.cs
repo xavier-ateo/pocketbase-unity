@@ -586,7 +586,7 @@ namespace PocketBaseSdk
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            Dictionary<string, object> enrichedBody = new(query ?? new());
+            Dictionary<string, object> enrichedBody = new(body ?? new());
 
             if (!string.IsNullOrEmpty(email))
                 enrichedBody.TryAdd("email", email);
