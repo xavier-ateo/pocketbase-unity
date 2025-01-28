@@ -24,6 +24,16 @@ public class PocketBaseExamples : MonoBehaviour
         _pb = new PocketBase(_pocketBaseUrl, authStore: AsyncAuthStore.PlayerPrefs);
     }
 
+    [ContextMenu(nameof(ConnectToCollectionSSE))]
+    private async void ConnectToCollectionSSE()
+    {
+        await _pb.Collection("posts").Subscribe("*", e =>
+        {
+            Debug.Log(e.Action);
+            Debug.Log(e.Record);
+        });
+    }
+
     [ContextMenu(nameof(HealthCheck))]
     private void HealthCheck()
     {
@@ -39,10 +49,25 @@ public class PocketBaseExamples : MonoBehaviour
         });
     }
 
-    [ContextMenu(nameof(LoginWithGoogle))]
-    private void LoginWithGoogle()
+    [ContextMenu(nameof(LoginWithGoogleAsync))]
+    private async void LoginWithGoogleAsync()
     {
-        _pb.Collection("users").AuthWithOAuth2("google", Debug.Log);
+        try
+        {
+            // Start the OAuth2 flow
+            RecordAuth auth = await _pb.Collection("users").AuthWithOAuth2("google", url =>
+            {
+                // Launch the OAuth2 URL in a web view or browser.
+                // This is where the user will log in with the provider.
+                Application.OpenURL(url.AbsoluteUri);
+            });
+            
+            Debug.Log($"Success! {auth.Record}");
+        }
+        catch (ClientException e)
+        {
+            Debug.LogError(e.OriginalError);
+        }
     }
 
     [ContextMenu(nameof(Login))]

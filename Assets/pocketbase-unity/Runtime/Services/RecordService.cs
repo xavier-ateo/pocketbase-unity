@@ -6,11 +6,12 @@ using System.Web;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace PocketBaseSdk
 {
-    public delegate void RecordSubscriptionFunc<T>(RecordSubscriptionEvent<T> e);
+    public delegate void RecordSubscriptionFunc(RecordSubscriptionEvent e);
 
     public delegate void OAuth2UrlCallbackFunc(Uri url);
 
@@ -50,9 +51,9 @@ namespace PocketBaseSdk
         /// Or use <see cref="Unsubscribe"/> if you want to remove all
         /// subscriptions attached to the topic.
         /// </returns>
-        public Task<UnsubscribeFunc> Subscribe<T>(
+        public Task<UnsubscribeFunc> Subscribe(
             string topic,
-            RecordSubscriptionFunc<T> callback,
+            RecordSubscriptionFunc callback,
             string expand = null,
             string filter = null,
             string fields = null,
@@ -61,7 +62,7 @@ namespace PocketBaseSdk
         {
             return _client.Realtime.Subscribe(
                 $"{_collectionIdOrName}/{topic}",
-                e => callback(JsonConvert.DeserializeObject<RecordSubscriptionEvent<T>>(e.Data)),
+                e => callback(JsonConvert.DeserializeObject<RecordSubscriptionEvent>(e.Data)),
                 expand,
                 filter,
                 fields,
@@ -475,7 +476,7 @@ namespace PocketBaseSdk
         /// </remarks>
         /// <example> 
         /// <code>
-        /// await pb.collection('users').authWithOAuth2('google', url => {
+        /// await pb.collection("users").authWithOAuth2("google", url => {
         ///   Application.OpenUrl(url);
         /// });
         /// </code> 
@@ -510,7 +511,7 @@ namespace PocketBaseSdk
                         fields: fields
                     );
 
-                    var authUrl = new Uri(provider.AuthUrl + redirectUrl);
+                    Uri authUrl = new(provider.AuthUrl + redirectUrl);
                     var queryParameters = HttpUtility.ParseQueryString(authUrl.Query);
                     queryParameters["state"] = _client.Realtime.ClientId;
 
@@ -526,6 +527,8 @@ namespace PocketBaseSdk
 
                     async void HandleMessage(SseMessage e, UnsubscribeFunc unsubFunc)
                     {
+                        Debug.Log(e);
+                        
                         try
                         {
                             string oldState = _client.Realtime.ClientId;

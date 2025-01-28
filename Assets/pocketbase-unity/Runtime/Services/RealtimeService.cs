@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace PocketBaseSdk
 {
@@ -243,7 +244,7 @@ namespace PocketBaseSdk
                 }
             };
 
-            // Bind subscriptions listener
+            // Bind subscription listener
             _sse.OnMessage += msg =>
             {
                 if (!_subscriptions.TryGetValue(msg.Event, out var subscription))
