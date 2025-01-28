@@ -1,0 +1,75 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using UnityEngine;
+
+namespace PocketBaseSdk
+{
+    public static class ExtensionMethods
+    {
+        public static TaskAwaiter GetAwaiter(this AsyncOperation asyncOp)
+        {
+            var tcs = new TaskCompletionSource<object>();
+            asyncOp.completed += _ => { tcs.SetResult(null); };
+            return ((Task)tcs.Task).GetAwaiter();
+        }
+
+        public static bool TryAddNonNull<TKey, TValue>(
+            this Dictionary<TKey, TValue> dictionary,
+            TKey key,
+            TValue value)
+        {
+            if (value is null)
+                return false;
+
+            if (value is string str && (string.IsNullOrWhiteSpace(str) || string.IsNullOrEmpty(str)))
+            {
+                return false;
+            }
+
+            return dictionary.TryAdd(key, value);
+        }
+
+        public static void RemoveWhere<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary,
+            Func<KeyValuePair<TKey, TValue>, bool> predicate)
+        {
+            var keysToRemove = dictionary.Where(predicate).Select(kvp => kvp.Key).ToList();
+            foreach (var key in keysToRemove)
+            {
+                dictionary.Remove(key);
+            }
+        }
+
+        private static TaskScheduler UnityMainThreadTaskScheduler => TaskScheduler.FromCurrentSynchronizationContext();
+
+        public static Task ContinueWithOnMainThread(
+            this Task task,
+            Action<Task> continuationAction,
+            TaskContinuationOptions continuationOptions = TaskContinuationOptions.None,
+            CancellationToken cancellationToken = default)
+        {
+            return task.ContinueWith(
+                continuationAction,
+                cancellationToken,
+                continuationOptions,
+                UnityMainThreadTaskScheduler);
+        }
+
+        public static Task ContinueWithOnMainThread<T>(
+            this Task<T> task,
+            Action<Task<T>> continuationAction,
+            TaskContinuationOptions continuationOptions = TaskContinuationOptions.None,
+            CancellationToken cancellationToken = default)
+        {
+            return task.ContinueWith(
+                continuationAction,
+                cancellationToken,
+                continuationOptions,
+                UnityMainThreadTaskScheduler);
+        }
+    }
+}
