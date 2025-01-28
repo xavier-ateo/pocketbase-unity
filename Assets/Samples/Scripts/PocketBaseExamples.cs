@@ -35,7 +35,7 @@ public class PocketBaseExamples : MonoBehaviour
     }
 
     [ContextMenu(nameof(HealthCheck))]
-    private void HealthCheck()
+    public void HealthCheck()
     {
         _pb.Health.Check().ContinueWithOnMainThread(t =>
         {
@@ -50,7 +50,7 @@ public class PocketBaseExamples : MonoBehaviour
     }
 
     [ContextMenu(nameof(LoginWithGoogleAsync))]
-    private async void LoginWithGoogleAsync()
+    public async void LoginWithGoogleAsync()
     {
         try
         {
