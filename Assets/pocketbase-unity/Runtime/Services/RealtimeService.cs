@@ -51,15 +51,30 @@ namespace PocketBaseSdk
         {
             var key = topic;
 
+            // Merge query parameters
             Dictionary<string, object> enrichedQuery = new(query ?? new());
-            enrichedQuery.TryAddNonNull("expand", expand);
-            enrichedQuery.TryAddNonNull("filter", filter);
-            enrichedQuery.TryAddNonNull("fields", fields);
+
+            if (!string.IsNullOrEmpty(expand))
+                enrichedQuery.TryAdd("expand", expand);
+
+            if (!string.IsNullOrEmpty(filter))
+                enrichedQuery.TryAdd("filter", filter);
+
+            if (!string.IsNullOrEmpty(fields))
+                enrichedQuery.TryAdd("fields", fields);
 
             // Serialize and append the topic options (if any)
-            Dictionary<string, object> options = new();
-            options.TryAddNonNull("query", enrichedQuery);
-            options.TryAddNonNull("headers", headers);
+            var options = new Dictionary<string, object>();
+
+            if (enrichedQuery.Count > 0)
+            {
+                options["query"] = enrichedQuery;
+            }
+
+            if (headers?.Count > 0)
+            {
+                options["headers"] = headers;
+            }
 
             if (options.Count > 0)
             {

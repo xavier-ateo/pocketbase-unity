@@ -27,7 +27,7 @@ public class PocketBaseExamples : MonoBehaviour
     [ContextMenu(nameof(ConnectToCollectionSSE))]
     private async void ConnectToCollectionSSE()
     {
-        await _pb.Collection("posts").Subscribe("*", e =>
+        await _pb.Collection("example").Subscribe("*", e =>
         {
             Debug.Log(e.Action);
             Debug.Log(e.Record);

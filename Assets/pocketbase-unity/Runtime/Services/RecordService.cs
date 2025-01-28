@@ -527,8 +527,6 @@ namespace PocketBaseSdk
 
                     async void HandleMessage(SseMessage e, UnsubscribeFunc unsubFunc)
                     {
-                        Debug.Log(e);
-                        
                         try
                         {
                             string oldState = _client.Realtime.ClientId;
