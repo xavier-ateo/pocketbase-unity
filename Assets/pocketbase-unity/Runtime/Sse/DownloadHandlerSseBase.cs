@@ -1,3 +1,8 @@
+/*
+ * Thanks to https://github.com/prodigga for the base code.
+ * Available here https://gist.github.com/prodigga/861d72075f9f8abde5fc7b9744a1f4eb.
+ */
+
 using System.Text;
 using UnityEngine.Networking;
 
