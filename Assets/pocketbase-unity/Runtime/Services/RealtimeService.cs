@@ -18,6 +18,24 @@ namespace PocketBaseSdk
 
         public string ClientId { get; private set; }
 
+        /// <summary>
+        /// An optional hook that is invoked when the realtime client disconnects
+        /// either when unsubscribing from all subscriptions or when the
+        /// connection was interrupted or closed by the server.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// It receives the subscriptions' map before the disconnect
+        /// (could be used to determine whether the disconnect was caused by
+        /// unsubscribing or network/server error).
+        /// </para>
+        /// <para>
+        /// If you want to listen to the opposite, aka.
+        /// When the client connection is established, subscribe to the `PB_CONNECT` event.
+        /// </para>
+        /// </remarks>
+        public Action<Dictionary<string, SubscriptionFunc>> OnDisconnect;
+
         public RealtimeService(PocketBase client) : base(client)
         {
         }
@@ -250,11 +268,24 @@ namespace PocketBaseSdk
             _sse = new SseClient(url);
             _sse.OnClose += () =>
             {
+                if (!string.IsNullOrEmpty(ClientId))
+                {
+                    OnDisconnect?.Invoke(_subscriptions);
+                }
+
                 Disconnect();
 
                 if (!completer.Task.IsCompleted)
                 {
                     completer.SetException(new Exception("failed to establish SSE connection"));
+                }
+            };
+            _sse.OnError += _ =>
+            {
+                if (!string.IsNullOrEmpty(ClientId))
+                {
+                    ClientId = string.Empty;
+                    OnDisconnect?.Invoke(_subscriptions);
                 }
             };
 
