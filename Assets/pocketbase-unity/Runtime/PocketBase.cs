@@ -14,8 +14,8 @@ namespace PocketBaseSdk
     {
         public AuthStore AuthStore { get; }
         public BackupService Backups { get; }
-        public CronService Crons { get; }
         public CollectionService Collections { get; }
+        public CronService Crons { get; }
         public FileService Files { get; }
         public HealthService Health { get; }
         public LogService Logs { get; }
