@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace PocketBaseSdk
 {
     [Serializable]
-    public class AuthMethodList
+    public class AuthMethodsList
     {
         [JsonProperty("mfa")]
         public AuthMethodMFA MFA { get; private set; } = new();
