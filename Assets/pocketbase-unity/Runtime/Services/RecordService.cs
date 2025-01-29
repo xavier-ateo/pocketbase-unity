@@ -176,7 +176,7 @@ namespace PocketBaseSdk
         /// <summary>
         /// Returns all available application auth methods.
         /// </summary>
-        public Task<AuthMethodList> ListAuthMethods(
+        public Task<AuthMethodsList> ListAuthMethods(
             string fields = null,
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
@@ -190,7 +190,7 @@ namespace PocketBaseSdk
                 $"{BaseCollectionPath}/auth-methods",
                 query: enrichedQuery,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<AuthMethodList>());
+            ).ContinueWith(t => t.Result.ToObject<AuthMethodsList>());
         }
 
         /// <summary>

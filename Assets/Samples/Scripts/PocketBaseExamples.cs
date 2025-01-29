@@ -54,8 +54,8 @@ public class PocketBaseExamples : MonoBehaviour
     {
         try
         {
-            AuthMethodList authMethods = await _pb.Collection("users").ListAuthMethods();
-            Debug.Log(authMethods);
+            AuthMethodsList authMethodses = await _pb.Collection("users").ListAuthMethods();
+            Debug.Log(authMethodses);
         }
         catch (Exception e)
         {
