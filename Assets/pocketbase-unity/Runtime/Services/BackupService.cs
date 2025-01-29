@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 namespace PocketBaseSdk
 {
     /// <summary>
-    /// The service that handles the **Backup and restore APIs**.
+    /// The service that handles the Backup and restore APIs.
     /// </summary>
     /// <remarks>
     /// Usually shouldn't be initialized manually and instead
