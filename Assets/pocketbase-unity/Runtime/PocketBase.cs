@@ -24,6 +24,9 @@ namespace PocketBaseSdk
         private readonly string _lang;
         private readonly Dictionary<string, RecordService> _recordServices = new();
 
+        public string BaseUrl => _baseUrl;
+        public string Lang => _lang;
+
         public PocketBase(
             string baseUrl,
             string lang = "en-US",

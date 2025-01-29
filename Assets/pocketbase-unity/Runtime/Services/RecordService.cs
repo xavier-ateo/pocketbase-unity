@@ -641,6 +641,61 @@ namespace PocketBaseSdk
         }
 
         /// <summary>
+        /// Impersonate authenticates with the specified recordId and
+        /// returns a new client with the received auth token in a memory store.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// If `duration` is 0 the generated auth token will fallback
+        /// to the default collection auth token duration.
+        /// </para>
+        /// <para>
+        /// This action currently requires superusers privileges.
+        /// </para>
+        /// </remarks>
+        public async Task<PocketBase> Impersonate(
+            string recordId,
+            float duration,
+            string expand = null,
+            string fields = null,
+            Dictionary<string, object> body = null,
+            Dictionary<string, object> query = null,
+            Dictionary<string, string> headers = null)
+        {
+            Dictionary<string, object> enrichedBody = new(body ?? new());
+            enrichedBody.TryAdd("duration", duration);
+
+            Dictionary<string, object> enrichedQuery = new(query ?? new());
+            enrichedQuery.TryAddNonNull("expand", expand);
+            enrichedQuery.TryAddNonNull("fields", fields);
+
+            Dictionary<string, string> enrichedHeaders = new(headers ?? new());
+            enrichedHeaders.TryAddNonNull("Authorization", _client.AuthStore.Token);
+
+            // Create a new client with the impersonated auth state
+            // ---
+            PocketBase tempClient = new PocketBase(
+                _client.BaseUrl,
+                lang: _client.Lang
+            );
+
+            RecordAuth authData = await tempClient
+                .Send(
+                    $"{BaseCollectionPath}/impersonate/{HttpUtility.UrlEncode(recordId)}",
+                    method: "POST",
+                    body: enrichedBody,
+                    query: enrichedQuery,
+                    headers: enrichedHeaders
+                )
+                .ContinueWith(t => t.Result.ToObject<RecordAuth>());
+
+            tempClient.AuthStore.Save(authData.Token, authData.Record);
+            // ---
+
+            return tempClient;
+        }
+
+        /// <summary>
         /// Refreshes the current authenticated auth record instance and
         /// returns a new token and record data.
         /// </summary>
