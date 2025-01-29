@@ -409,41 +409,6 @@ namespace PocketBaseSdk
         }
 
         /// <summary>
-        /// Lists all linked external auth providers for the specified record.
-        /// </summary>
-        public Task<List<ExternalAuthModel>> ListExternalAuths(
-            string recordId,
-            Dictionary<string, object> query = null,
-            Dictionary<string, string> headers = null)
-        {
-            return _client.Send(
-                $"{BaseCollectionPath}/{HttpUtility.UrlEncode(recordId)}/external-auths",
-                query: query,
-                headers: headers
-            ).ContinueWith(t => t.Result.ToObject<List<ExternalAuthModel>>());
-        }
-
-        /// <summary>
-        /// Unlinks a single external auth provider relation from the
-        /// specified record.
-        /// </summary>
-        public Task UnlinkExternalAuth(
-            string recordId,
-            string provider,
-            Dictionary<string, object> body = null,
-            Dictionary<string, object> query = null,
-            Dictionary<string, string> headers = null)
-        {
-            return _client.Send(
-                $"{BaseCollectionPath}/{HttpUtility.UrlEncode(recordId)}/external-auths/{HttpUtility.UrlEncode(provider)}",
-                method: "DELETE",
-                body: body,
-                query: query,
-                headers: headers
-            );
-        }
-
-        /// <summary>
         /// Authenticate an auth record with an OAuth2 client provider and returns
         /// a new auth token and record data (including the OAuth2 user profile).
         /// </summary>
