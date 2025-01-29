@@ -3,6 +3,9 @@ using Newtonsoft.Json;
 
 namespace PocketBaseSdk
 {
+    /// <summary>
+    /// Response DTO of a cron job item.
+    /// </summary>
     [Serializable]
     public class CronJob
     {
