@@ -10,7 +10,7 @@ namespace PocketBaseSdk
     /// </summary>
     /// <remarks>
     /// Usually shouldn't be initialized manually and instead
-    /// <see cref="PocketBase.Backup"/> should be used.
+    /// <see cref="PocketBase.Backups"/> should be used.
     /// </remarks>
     public class BackupService : BaseService
     {
