@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 namespace PocketBaseSdk
 {
     [Serializable]
-
     public sealed class CollectionField
     {
         [JsonProperty("id")]
@@ -28,5 +27,7 @@ namespace PocketBaseSdk
 
         [JsonProperty("options")]
         public Dictionary<string, object> Options { get; set; } = new();
+        
+        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }

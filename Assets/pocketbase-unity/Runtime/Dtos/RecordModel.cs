@@ -36,7 +36,11 @@ namespace PocketBaseSdk
             return JsonConvert.DeserializeObject<RecordModel>(json);
         }
 
-        public JToken this[string key] => _additionalData.TryGetValue(key, out var value) ? value : null;
+        public JToken this[string key]
+        {
+            get => _additionalData.TryGetValue(key, out var value) ? value : null;
+            set => _additionalData[key] = value;
+        }
 
         public override string ToString() => JsonConvert.SerializeObject(this);
     }

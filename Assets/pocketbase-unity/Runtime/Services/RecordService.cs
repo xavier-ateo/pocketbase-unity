@@ -137,9 +137,10 @@ namespace PocketBaseSdk
                     {
                         currentExpand[key] = value;
                     }
+
                     data["expand"] = currentExpand;
                 }
-                
+
                 _client.AuthStore.Save(_client.AuthStore.Token, RecordModel.Create(data));
             }
 
@@ -323,7 +324,6 @@ namespace PocketBaseSdk
             );
 
             var parts = verificationToken.Split(".");
-
             if (parts.Length != 3)
             {
                 return;
@@ -333,12 +333,13 @@ namespace PocketBaseSdk
             var payload = JsonConvert.DeserializeObject<Dictionary<string, object>>(
                 Encoding.UTF8.GetString(Convert.FromBase64String(payloadPart)));
 
-            if (_client.AuthStore.Record is UserModel { Verified: false } userModel &&
-                userModel.Id == (string)payload["id"] &&
-                userModel.CollectionId == (string)payload["collectionId"])
+            if (_client.AuthStore.Record is { } record &&
+                (bool)record["verified"] is false &&
+                record.Id == (string)payload["id"] &&
+                record.CollectionId == (string)payload["collectionId"])
             {
-                userModel.Verified = true;
-                _client.AuthStore.Save(_client.AuthStore.Token, userModel);
+                record["verified"] = true;
+                _client.AuthStore.Save(_client.AuthStore.Token, record);
             }
         }
 
