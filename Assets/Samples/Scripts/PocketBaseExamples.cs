@@ -49,6 +49,20 @@ public class PocketBaseExamples : MonoBehaviour
         });
     }
 
+    [ContextMenu(nameof(ListAuthMethods))]
+    public async void ListAuthMethods()
+    {
+        try
+        {
+            AuthMethodList authMethods = await _pb.Collection("users").ListAuthMethods();
+            Debug.Log(authMethods);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
+    }
+
     [ContextMenu(nameof(LoginWithGoogleAsync))]
     public async void LoginWithGoogleAsync()
     {

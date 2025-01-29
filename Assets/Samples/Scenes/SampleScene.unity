@@ -258,11 +258,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 949413016}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2864450e1b19426897507e7a939d89df, type: 3}
+  m_Script: {fileID: 11500000, guid: 65dd77a5fe444a4d9623a8d58957f09c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _pocketBaseUrl: https://pocketbase-production-a5bb.up.railway.app/
-  _env: {fileID: 11400000, guid: 374e3239f7dabc04bb1c5d5614fd7269, type: 2}
+  _config: {fileID: 4900000, guid: 1ed810c02bee49a491d884091d2a8a2d, type: 3}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -439,7 +438,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 949413017}
+      - m_Target: {fileID: 949413019}
         m_TargetAssemblyTypeName: PocketBaseExamples, Assembly-CSharp
         m_MethodName: HealthCheck
         m_Mode: 1
@@ -1095,7 +1094,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 949413017}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PocketBaseExamples, Assembly-CSharp
         m_MethodName: LoginWithGoogleAsync
         m_Mode: 1

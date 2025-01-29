@@ -17,5 +17,7 @@ namespace PocketBaseSdk
 
         [JsonProperty("oauth2")]
         public AuthMethodOAuth2 OAuth2 { get; private set; } = new();
+        
+        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }

@@ -103,15 +103,44 @@ namespace PocketBaseSdk
             Dictionary<string, object> query = null,
             List<IMultipartFormSection> files = null,
             Dictionary<string, string> headers = null,
-            string expand = null, string fields = null)
+            string expand = null,
+            string fields = null)
         {
-            var item = await base.Update(id, body, query, files, headers, expand, fields);
+            RecordModel item = await base.Update(id, body, query, files, headers, expand, fields);
 
-            if (item is { } record &&
-                _client.AuthStore.Record is { } &&
-                _client.AuthStore.Record.Id == record.Id)
+            // Check if the current AuthStore record matches the updated item
+            if (_client.AuthStore.Record is not null &&
+                _client.AuthStore.Record.Id == item.Id &&
+                new[]
+                {
+                    _client.AuthStore.Record.CollectionId,
+                    _client.AuthStore.Record.CollectionName
+                }.Contains(_collectionIdOrName))
             {
-                _client.AuthStore.Save(_client.AuthStore.Token, record);
+                // Merge the response fields with the current auth record
+                var currentExpand = _client.AuthStore.Record["expand"]?.ToObject<Dictionary<string, dynamic>>() ??
+                                    new();
+
+                var newExpand = item["expand"]?.ToObject<Dictionary<string, dynamic>>() ?? new();
+
+                var data = new Dictionary<string, dynamic>(_client.AuthStore.Record.Data);
+
+                // Merge with the new item data
+                foreach (var (key, value) in item.Data)
+                {
+                    data[key] = value;
+                }
+
+                if (currentExpand.Any())
+                {
+                    foreach (var (key, value) in newExpand)
+                    {
+                        currentExpand[key] = value;
+                    }
+                    data["expand"] = currentExpand;
+                }
+                
+                _client.AuthStore.Save(_client.AuthStore.Token, RecordModel.Create(data));
             }
 
             return item;
