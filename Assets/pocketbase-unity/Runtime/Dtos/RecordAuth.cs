@@ -3,6 +3,9 @@ using Newtonsoft.Json;
 
 namespace PocketBaseSdk
 {
+    /// <summary>
+    /// Response DTO of the record authentication data.
+    /// </summary>
     [Serializable]
     public class RecordAuth
     {
@@ -17,5 +20,7 @@ namespace PocketBaseSdk
 
         [JsonProperty("record")]
         public BaseAuthModel Record { get; private set; }
+
+        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }

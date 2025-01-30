@@ -2,17 +2,20 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using PocketBaseSdk;
+using TMPro;
 using UnityEngine;
 
 public class PocketBaseExamples : MonoBehaviour
 {
     [SerializeField] private TextAsset _config;
+    [SerializeField] private TMP_InputField _otpCode;
 
     private string _pocketBaseUrl;
     private string _email;
     private string _password;
 
     private PocketBase _pb;
+    private string _otpId;
 
     private void Awake()
     {
@@ -59,7 +62,41 @@ public class PocketBaseExamples : MonoBehaviour
         }
         catch (Exception e)
         {
+            Debug.LogException(e);
+        }
+    }
+
+    [ContextMenu(nameof(RequestOTP))]
+    public async void RequestOTP()
+    {
+        try
+        {
+            OTPResponse response = await _pb.Collection("users").RequestOTP(_email);
+            _otpId = response.OtpId;
+
+            Debug.Log(response);
+        }
+        catch (Exception e)
+        {
             Debug.LogError(e);
+        }
+    }
+
+    [ContextMenu(nameof(AuthWithOTP))]
+    public async void AuthWithOTP()
+    {
+        try
+        {
+            RecordAuth auth = await _pb.Collection("users").AuthWithOTP(
+                otpId: _otpId,
+                password: _otpCode.text
+            );
+
+            Debug.Log(auth);
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
         }
     }
 
@@ -75,7 +112,7 @@ public class PocketBaseExamples : MonoBehaviour
                 // This is where the user will log in with the provider.
                 Application.OpenURL(url.AbsoluteUri);
             });
-            
+
             Debug.Log($"Success! {auth.Record}");
         }
         catch (ClientException e)
