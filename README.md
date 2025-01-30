@@ -33,7 +33,7 @@ Some versions of PocketBase may not be compatible with some versions of this SDK
 | Unity SDK Version | PocketBase Version |
 | ----------------- | ------------------ |
 | 0.22.x            | 0.22.x             |
-| Not yet released  | 0.23.x             |
+| 0.23.x            | 0.23+              |
 
 ## Installation
 
