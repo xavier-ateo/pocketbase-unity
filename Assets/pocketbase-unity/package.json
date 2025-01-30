@@ -1,6 +1,6 @@
 {
   "name": "com.sov3rain.pocketbase-unity",
-  "version": "0.22.3",
+  "version": "0.23.0",
   "displayName": "PocketBase SDK",
   "description": "PocketBase Unity SDK",
   "unity": "2022.3",

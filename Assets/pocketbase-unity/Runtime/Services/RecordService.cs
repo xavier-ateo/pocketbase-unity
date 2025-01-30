@@ -6,7 +6,6 @@ using System.Web;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace PocketBaseSdk
