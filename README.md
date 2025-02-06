@@ -41,10 +41,10 @@ Open the *Package Manager* window, and click the *+* icon, then click on *Add pa
 following url and click *Add*:
 
 ```bash
-https://github.com/Sov3rain/pocketbase-unity.git?path=/Assets/pocketbase-unity#0.23.0
+https://github.com/Sov3rain/pocketbase-unity.git?path=/Assets/pocketbase-unity#0.23.1
 ```
 
-This will tag the package with the version `0.23.0`.
+This will tag the package with the version `0.23.1`.
 
 You can also install the SDK by downloading the `.unitypackage` from the [releases page](https://github.com/Sov3rain/pocketbase-unity/releases) and importing it into your project.
 
