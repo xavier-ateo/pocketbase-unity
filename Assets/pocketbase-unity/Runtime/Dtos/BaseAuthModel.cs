@@ -12,7 +12,7 @@ namespace PocketBaseSdk
         [JsonProperty("emailVisibility")]
         public bool? EmailVisibility { get; private set; }
 
-        [JsonProperty("username")]
+        [JsonProperty("name")]
         public string Username { get; private set; }
 
         [JsonProperty("verified")]
