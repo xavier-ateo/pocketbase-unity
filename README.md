@@ -2,18 +2,20 @@
 
 Unofficial Multi-platform Unity C# SDK for interacting with the [PocketBase Web API](https://pocketbase.io/docs).
 
-- [Supported Unity versions and platforms](#supported-unity-versions-and-platforms)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Caveats](#caveats)
-  - [File upload](#file-upload)
-  - [RecordModel](#recordmodel)
-  - [Error handling](#error-handling)
-  - [AuthStore](#authstore)
-  - [Binding filter parameters](#binding-filter-parameters)
-  - [Extension methods](#extension-methods)
-- [Services](#services)
-- [Development](#development)
+- [PocketBase Unity SDK](#pocketbase-unity-sdk)
+  - [Supported Unity versions and platforms](#supported-unity-versions-and-platforms)
+  - [Supported PocketBase versions](#supported-pocketbase-versions)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [Caveats](#caveats)
+    - [File upload](#file-upload)
+    - [RecordModel](#recordmodel)
+    - [Error handling](#error-handling)
+    - [AuthStore](#authstore)
+    - [Binding filter parameters](#binding-filter-parameters)
+    - [Extension Methods](#extension-methods)
+  - [Services](#services)
+  - [Development](#development)
 
 ## Supported Unity versions and platforms
 
@@ -41,10 +43,10 @@ Open the *Package Manager* window, and click the *+* icon, then click on *Add pa
 following url and click *Add*:
 
 ```bash
-https://github.com/Sov3rain/pocketbase-unity.git?path=/Assets/pocketbase-unity#0.23.1
+https://github.com/Sov3rain/pocketbase-unity.git?path=/Assets/pocketbase-unity#0.23.2
 ```
 
-This will tag the package with the version `0.23.1`.
+This will tag the package with a specific version.
 
 You can also install the SDK by downloading the `.unitypackage` from the [releases page](https://github.com/Sov3rain/pocketbase-unity/releases) and importing it into your project.
 
@@ -74,7 +76,7 @@ public class PocketBaseExample : MonoBehaviour
             expand: "someRelField"
         );
 
-        // Susbscribe to realtime "example" collection changes
+        // Subscribe to realtime "example" collection changes
         pb.Collection("example").Subscribe<RecordModel>("*", e =>
         {
             Debug.Log(e.Action); // "create", "update", "delete"
@@ -100,11 +102,11 @@ using UnityEngine;
 
 public class PocketBaseExample : MonoBehaviour
 {
-    private PocketBase _pocketBase;
+    private PocketBase pb;
 
     private async void Start()
     {
-        pb= new PocketBase("http://127.0.0.1:8090");
+        pb = new PocketBase("http://127.0.0.1:8090");
 
         var record = await pb.Collection("example").Create<RecordModel>(
             body: new()
@@ -132,7 +134,6 @@ The SDK comes with several helpers to make it easier working with the `RecordSe
 
 ```csharp
 var record = await pb.Collection("example").GetOne("RECORD_ID");
-
 
 var options = record["options"]?.ToObject<List<string>>();
 var email = (string)record["email"];
