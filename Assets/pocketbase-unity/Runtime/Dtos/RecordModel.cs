@@ -9,27 +9,30 @@ namespace PocketBaseSdk
     public class RecordModel
     {
         [JsonProperty("id")]
-        public string Id { get; private set; }
+        public string Id { get; protected set; }
 
         [JsonProperty("collectionId")]
-        public string CollectionId { get; private set; }
+        public string CollectionId { get; protected set; }
 
         [JsonProperty("collectionName")]
-        public string CollectionName { get; private set; }
+        public string CollectionName { get; protected set; }
 
         [JsonProperty("created")]
-        public DateTime? Created { get; private set; }
+        public DateTime? Created { get; protected set; }
 
         [JsonProperty("updated")]
-        public DateTime? Updated { get; private set; }
+        public DateTime? Updated { get; protected set; }
 
         [JsonExtensionData]
-        private IDictionary<string, JToken> _additionalData;
+        protected IDictionary<string, JToken> _additionalData;
 
         [JsonIgnore]
         public Dictionary<string, dynamic> Data =>
             JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(ToString());
 
+        [JsonIgnore]
+        public ICollection<string> AdditionalDataKeys => _additionalData.Keys;
+        
         public static RecordModel Create(Dictionary<string, dynamic> data)
         {
             var json = JsonConvert.SerializeObject(data);
