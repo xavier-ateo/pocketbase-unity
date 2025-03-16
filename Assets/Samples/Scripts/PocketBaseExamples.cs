@@ -184,4 +184,24 @@ public class PocketBaseExamples : MonoBehaviour
                 Debug.Log(post.Title);
             });
     }
+
+    [ContextMenu(nameof(GetOneSimple))]
+    private async void GetOneSimple()
+    {
+        try
+        {
+            var record = await _pb.Collection("examples").GetOne("hz4l808h4w32713", expand: "other");
+            Debug.Log(record.Id);
+            Debug.Log(record.CollectionId);
+            Debug.Log(record.CollectionName);
+            Debug.Log(record.GetStringValue("title"));
+            Debug.Log(record.GetStringValue("expand.other.title"));
+
+            Debug.Log(record);
+        }
+        catch (ClientException e)
+        {
+            Debug.LogException(e);
+        }
+    }
 }

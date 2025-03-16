@@ -130,16 +130,27 @@ public class PocketBaseExample : MonoBehaviour
 
 ### RecordModel
 
-The SDK comes with several helpers to make it easier working with the `RecordService` and `RecordModel` DTO. Below is an example on how to access and cast record data values with the `RecordModel[string]` indexer:
+The SDK comes with several helpers to make it easier working with the `RecordService` and `RecordModel` DTO. Below is an example on how to access and cast record data values:
 
 ```csharp
 var record = await pb.Collection("example").GetOne("RECORD_ID");
 
+var options = record.Get<List<string>>("options");
+var email   = record.Get<string>("email");
+var status  = record.Get<int>("status");
+var price   = record.Get<float>("price");
+var nested1 = record.Get<RecordModel>("expand.user", null);
+var nested2 = record.Get<string>("expand.user.title", "N/A");
+```
+
+You can also use the `RecordModel[string]` indexer:
+
+```csharp
 var options = record["options"]?.ToObject<List<string>>();
-var email = (string)record["email"];
-var status = (int)record["status"];
-var price = (float)record["price"];
-var nested1 = record["expand"]?["user"]?.ToObject<RecordModel>();
+var email   = record["email"]?.ToString();
+var status  = record["status"]?.ToObject<int>();
+var price   = record["price"]?.ToObject<float>();
+var nested1 = record["expand"]?["user"]?.ToObject<RecordModel>() ?? null;
 var nested2 = record["expand"]?["user"]?["title"]?.ToString() ?? "N/A";
 ```
 

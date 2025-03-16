@@ -117,12 +117,12 @@ namespace PocketBaseSdk
                 }.Contains(_collectionIdOrName))
             {
                 // Merge the response fields with the current auth record
-                var currentExpand = _client.AuthStore.Record["expand"]?.ToObject<Dictionary<string, dynamic>>() ??
+                var currentExpand = _client.AuthStore.Record["expand"]?.ToObject<Dictionary<string, object>>() ??
                                     new();
 
-                var newExpand = item["expand"]?.ToObject<Dictionary<string, dynamic>>() ?? new();
+                var newExpand = item["expand"]?.ToObject<Dictionary<string, object>>() ?? new();
 
-                var data = new Dictionary<string, dynamic>(_client.AuthStore.Record.Data);
+                var data = _client.AuthStore.Record.Data.ToObject<Dictionary<string, object>>();
 
                 // Merge with the new item data
                 foreach (var (key, value) in item.Data)
