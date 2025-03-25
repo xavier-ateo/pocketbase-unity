@@ -33,6 +33,11 @@ namespace PocketBaseSdk
         [JsonIgnore]
         public ICollection<string> AdditionalDataKeys => _additionalData.Keys;
         
+        public RecordModel()
+        {
+            _additionalData = new Dictionary<string, JToken>();
+        }
+
         public static RecordModel Create(Dictionary<string, dynamic> data)
         {
             var json = JsonConvert.SerializeObject(data);
