@@ -90,12 +90,26 @@ namespace PocketBaseSdk
 
             if (req.result is not Success)
             {
+                var respone = new Dictionary<string, object>();
+                
+                try
+                {
+                    respone = JsonConvert.DeserializeObject<Dictionary<string, object>>(req.downloadHandler.text);
+                }
+                catch (Exception)
+                {
+                    if(!string.IsNullOrEmpty(req.downloadHandler.text))
+                    {
+                        respone.Add("error", req.downloadHandler.text)
+                    }
+                }
+
                 throw new ClientException
                 (
                     url: url,
                     statusCode: (int)req.responseCode,
                     originalError: req.downloadHandler.text,
-                    response: JsonConvert.DeserializeObject<Dictionary<string, object>>(req.downloadHandler.text)
+                    response: respone
                 );
             }
 
