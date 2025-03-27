@@ -100,7 +100,7 @@ namespace PocketBaseSdk
                 {
                     if(!string.IsNullOrEmpty(req.downloadHandler.text))
                     {
-                        respone.Add("error", req.downloadHandler.text)
+                        respone.Add("error", req.downloadHandler.text);
                     }
                 }
 
