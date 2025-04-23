@@ -68,7 +68,7 @@ public class PocketBaseExample : MonoBehaviour
         var userData = await pb.Collection("users").AuthWithPassword("user@example.com", "password");
 
         // List and filter "example" collection records
-        var result = await pb.Collection("example").GetList<RecordModel>(
+        var result = await pb.Collection("example").GetList(
             page: 1,
             perPage: 20,
             filter: "status = true && created >= \"2022-08-01\"",
