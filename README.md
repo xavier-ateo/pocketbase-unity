@@ -62,7 +62,7 @@ public class PocketBaseExample : MonoBehaviour
 
     private async void Start()
     {
-        _pocketBase = new PocketBase("http://127.0.0.1:8090");
+        pb = new PocketBase("http://127.0.0.1:8090");
 
         // Authenticate as regular user
         var userData = await pb.Collection("users").AuthWithPassword("user@example.com", "password");
@@ -77,7 +77,7 @@ public class PocketBaseExample : MonoBehaviour
         );
 
         // Subscribe to realtime "example" collection changes
-        pb.Collection("example").Subscribe<RecordModel>("*", e =>
+        pb.Collection("example").Subscribe("*", e =>
         {
             Debug.Log(e.Action); // "create", "update", "delete"
             Debug.Log(e.Record); // The changed record
@@ -108,8 +108,8 @@ public class PocketBaseExample : MonoBehaviour
     {
         pb = new PocketBase("http://127.0.0.1:8090");
 
-        var record = await pb.Collection("example").Create<RecordModel>(
-            body: new()
+        var record = await pb.Collection("example").Create(
+            body: new
             {
                 title = "Hello, World!"
             },
