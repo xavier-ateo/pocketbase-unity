@@ -19,7 +19,7 @@ namespace PocketBaseSdk
         }
 
         /// <summary>
-        /// Returns a list with all items batch fetched at once.
+        /// Returns a list with all item batch fetched at once.
         /// </summary>
         public Task<List<T>> GetFullList(
             int batch = 500,
@@ -59,7 +59,7 @@ namespace PocketBaseSdk
             return Request(1);
         }
 
-        public Task<ResultList<T>> GetList(
+        public async Task<ResultList<T>> GetList(
             int page = 1,
             int perPage = 30,
             bool skipTotal = false,
@@ -79,14 +79,16 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("sort", sort);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            return _client.Send(
+            var result = await _client.Send(
                 BaseCrudPath,
                 query: enrichedQuery,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<ResultList<T>>());
+            );
+
+            return result.ToObject<ResultList<T>>();
         }
 
-        public Task<T> GetOne(
+        public async Task<T> GetOne(
             string id,
             string expand = null,
             string fields = null,
@@ -112,11 +114,13 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("expand", expand);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            return _client.Send(
+            var result = await _client.Send(
                 path: $"{BaseCrudPath}/{HttpUtility.UrlEncode(id)}",
                 query: enrichedQuery,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<T>());
+            );
+
+            return result.ToObject<T>();
         }
 
         public async Task<T> GetFirstListItem(
@@ -154,7 +158,7 @@ namespace PocketBaseSdk
             return result.Items.First();
         }
 
-        public Task<T> Create(
+        public async Task<T> Create(
             object body,
             Dictionary<string, object> query = null,
             List<IMultipartFormSection> files = null,
@@ -166,17 +170,19 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("expand", expand);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            return _client.Send(
+            var result = await _client.Send(
                 BaseCrudPath,
                 method: "POST",
                 body: body,
                 query: enrichedQuery,
                 files: files,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<T>());
+            );
+
+            return result.ToObject<T>();
         }
 
-        public virtual Task<T> Update(
+        public async virtual Task<T> Update(
             string id,
             object body = null,
             Dictionary<string, object> query = null,
@@ -189,14 +195,16 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("expand", expand);
             enrichedQuery.TryAddNonNull("fields", fields);
 
-            return _client.Send(
+            var result = await _client.Send(
                 path: $"{BaseCrudPath}/{HttpUtility.UrlEncode(id)}",
                 method: "PATCH",
                 body: body,
                 query: enrichedQuery,
                 files: files,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<T>());
+            );
+            
+            return result.ToObject<T>();
         }
 
         public virtual Task Delete(

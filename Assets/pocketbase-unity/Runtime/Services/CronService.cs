@@ -18,17 +18,19 @@ namespace PocketBaseSdk
         }
 
         /// <summary>
-        /// Returns list with all registered app cron jobs.
+        /// Returns a list with all registered app cron jobs.
         /// </summary>
-        public Task<List<CronJob>> GetFullList(
+        public async Task<List<CronJob>> GetFullList(
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            return _client.Send(
+            var result = await _client.Send(
                 "/api/crons",
                 query: query,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<List<CronJob>>());
+            );
+
+            return result.ToObject<List<CronJob>>();
         }
 
         /// <summary>

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.4] - 2025-04-28
+
+### Fixed
+
+- Fixed task continuation not running on WebGL.
+
+### Changed
+
+- Await all tasks instead of using `ContinueWith()`, as this is not supported in Unity WebGL.
+
 ## [0.23.3] - 2025-03-16
 
 ### Deprecated

@@ -19,7 +19,7 @@ namespace PocketBaseSdk
         /// <summary>
         /// Returns paginated logs list.
         /// </summary>
-        public Task<ResultList<LogModel>> GetList(
+        public async Task<ResultList<LogModel>> GetList(
             int page = 1,
             int perPage = 30,
             string filter = null,
@@ -33,11 +33,13 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("search", filter);
             enrichedQuery.TryAddNonNull("sort", sort);
 
-            return _client.Send(
+            var result = await _client.Send(
                 "api/logs",
                 query: enrichedQuery,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<ResultList<LogModel>>());
+            );
+
+            return result.ToObject<ResultList<LogModel>>();
         }
     }
 }

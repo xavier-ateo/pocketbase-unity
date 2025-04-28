@@ -21,15 +21,17 @@ namespace PocketBaseSdk
         /// <summary>
         /// Fetch all available app settings.
         /// </summary>
-        public Task<List<BackupFileInfo>> GetFullList(
+        public async Task<List<BackupFileInfo>> GetFullList(
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            return _client.Send(
+            var result = await _client.Send(
                 "/api/backups",
                 query: query,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<List<BackupFileInfo>>());
+            );
+
+            return result.ToObject<List<BackupFileInfo>>();
         }
 
         public Task Create(
