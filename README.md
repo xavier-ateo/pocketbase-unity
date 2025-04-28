@@ -43,7 +43,7 @@ Open the *Package Manager* window, and click the *+* icon, then click on *Add pa
 following url and click *Add*:
 
 ```bash
-https://github.com/Sov3rain/pocketbase-unity.git?path=/Assets/pocketbase-unity#0.23.2
+https://github.com/Sov3rain/pocketbase-unity.git?path=/Assets/pocketbase-unity#0.23.4
 ```
 
 This will tag the package with a specific version.
