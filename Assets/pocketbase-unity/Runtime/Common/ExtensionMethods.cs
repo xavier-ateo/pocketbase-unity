@@ -43,33 +43,5 @@ namespace PocketBaseSdk
                 dictionary.Remove(key);
             }
         }
-
-        private static TaskScheduler UnityMainThreadTaskScheduler => TaskScheduler.FromCurrentSynchronizationContext();
-
-        public static Task ContinueWithOnMainThread(
-            this Task task,
-            Action<Task> continuationAction,
-            TaskContinuationOptions continuationOptions = TaskContinuationOptions.None,
-            CancellationToken cancellationToken = default)
-        {
-            return task.ContinueWith(
-                continuationAction,
-                cancellationToken,
-                continuationOptions,
-                UnityMainThreadTaskScheduler);
-        }
-
-        public static Task ContinueWithOnMainThread<T>(
-            this Task<T> task,
-            Action<Task<T>> continuationAction,
-            TaskContinuationOptions continuationOptions = TaskContinuationOptions.None,
-            CancellationToken cancellationToken = default)
-        {
-            return task.ContinueWith(
-                continuationAction,
-                cancellationToken,
-                continuationOptions,
-                UnityMainThreadTaskScheduler);
-        }
     }
 }

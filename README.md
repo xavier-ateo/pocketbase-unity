@@ -13,7 +13,6 @@ Unofficial Multi-platform Unity C# SDK for interacting with the [PocketBase Web 
     - [Error handling](#error-handling)
     - [AuthStore](#authstore)
     - [Binding filter parameters](#binding-filter-parameters)
-    - [Extension Methods](#extension-methods)
   - [Services](#services)
   - [Development](#development)
 
@@ -193,19 +192,6 @@ catch (ClientException e)
 {
     // Handle error
 }
-
-// Or if you are using the ContinueWithOnMainThread syntax:
-pb.Collection("users").AuthWithPassword("user@example.com", "password").ContinueWithOnMainThread(task => 
-{
-    if (task.IsFaulted)
-    {
-        // Handle error
-    }
-    else if (task.IsCompleted)
-    {
-        var user = task.Result;
-    }
-});
 ```
 
 All responses errors are wrapped in a `ClientException` object, which contains the following properties:
@@ -298,30 +284,6 @@ var filter = PocketBase.Filter(
 );
 
 var record = await pb.Collection("example").GetList<RecordModel>(filter: filter);
-```
-
-### Extension Methods
-
-The SDK provides some helper methods to help with common tasks. 
-
-One of them is the `ContinueWithOnMainThread` method, which allows you to run a continuation task on the main thread. This is useful when you need to update the UI from a background thread, as Unity does not allow you to do this on any other thread:
-
-```csharp
-private Text _title;
-
-// This will run on the main thread
-pb.Collection("users").AuthWithPassword("user@example.com", "password").ContinueWithOnMainThread(task => 
-{
-    if (task.IsFaulted)
-    {
-        // Handle error
-    }
-    else if (task.IsCompleted)
-    {
-        var user = task.Result;
-        _title.text = user.Email; // Will throw an exception if called on a background thread
-    }
-});
 ```
 
 ## Services

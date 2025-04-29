@@ -83,3 +83,6 @@ crashlytics-build.properties
 
 # MacOS files
 .DS_Store
+
+# PocketBase files
+.pocketbase

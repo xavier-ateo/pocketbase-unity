@@ -38,18 +38,17 @@ public class PocketBaseExamples : MonoBehaviour
     }
 
     [ContextMenu(nameof(HealthCheck))]
-    public void HealthCheck()
+    public async void HealthCheck()
     {
-        _pb.Health.Check().ContinueWithOnMainThread(t =>
+        try
         {
-            if (t.IsFaulted)
-            {
-                Debug.LogError(t.Exception);
-            }
-
-            HealthCheck health = t.Result;
-            Debug.Log(health);
-        });
+            var result = await _pb.Health.Check();
+            Debug.Log(result);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.Message);
+        }
     }
 
     [ContextMenu(nameof(ListAuthMethods))]
@@ -122,67 +121,54 @@ public class PocketBaseExamples : MonoBehaviour
     }
 
     [ContextMenu(nameof(Login))]
-    private void Login()
+    private async void Login()
     {
-        _pb.Collection("users")
-            .AuthWithPassword(_email, _password)
-            .ContinueWithOnMainThread(t =>
-            {
-                if (t.IsFaulted)
-                {
-                    Debug.LogError(t.Exception);
-                }
-
-                var user = t.Result;
-                Debug.Log(user.Record.ToString());
-            });
+        try
+        {
+            RecordAuth result = await _pb.Collection("users").AuthWithPassword(_email, _password);
+            Debug.Log(result.Record);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.Message);
+        }
     }
 
     [ContextMenu(nameof(GetFullList))]
-    private void GetFullList()
+    private async void GetFullList()
     {
-        _pb.Collection("Posts")
-            .GetFullList(10)
-            .ContinueWithOnMainThread(t =>
+        try
+        {
+            var result = await _pb.Collection("Posts").GetFullList(10);
+
+            foreach (var post in result)
             {
-                if (t.IsFaulted && t.Exception?.InnerException is AggregateException ae)
-                {
-                    foreach (var e in ae.InnerExceptions)
-                    {
-                        Debug.LogError(e.Message);
-                    }
-                }
-
-                List<RecordModel> posts = t.Result;
-
-                foreach (var post in posts)
-                {
-                    Debug.Log(post);
-                }
-            });
+                Debug.Log(post);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.Message);
+        }
     }
 
     [ContextMenu(nameof(GetOne))]
-    private void GetOne()
+    private async void GetOne()
     {
-        _pb.Collection("Posts")
-            .GetOne("3g28fsld3arvpaz")
-            .ContinueWithOnMainThread(t =>
-            {
-                if (t.IsFaulted && t.Exception?.InnerException is AggregateException ae)
-                {
-                    foreach (var e in ae.InnerExceptions)
-                    {
-                        Debug.LogError(e.Message);
-                    }
-                }
-
-                Post post = Post.FromRecord(t.Result);
-                var status = (int)t.Result["status"];
-                var nested = t.Result["expand"]?["user"]?.ToObject<RecordModel>();
-                var nested2 = t.Result["expand"]?["user"]?["title"]?.ToString();
-                Debug.Log(post.Title);
-            });
+        try
+        {
+            var result = await _pb.Collection("Posts").GetOne("3g28fsld3arvpaz");
+            
+            Post post = Post.FromRecord(result);
+            var status = (int)result["status"];
+            var nested = result["expand"]?["user"]?.ToObject<RecordModel>();
+            var nested2 = result["expand"]?["user"]?["title"]?.ToString();
+            Debug.Log(post.Title);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.Message);
+        }
     }
 
     [ContextMenu(nameof(GetOneSimple))]
