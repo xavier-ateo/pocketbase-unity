@@ -50,17 +50,18 @@ namespace PocketBaseSdk
         /// <summary>
         /// Returns type indexed map with scaffolded collection models populated with their default field values.
         /// </summary>
-        public Task<Dictionary<string, CollectionModel>> GetScaffolds(
+        public async Task<Dictionary<string, CollectionModel>> GetScaffolds(
             Dictionary<string, object> body = null,
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            return _client.Send(
-                    $"{BaseCrudPath}/meta/scaffolds",
-                    body: body,
-                    query: query,
-                    headers: headers)
-                .ContinueWith(t => t.Result.ToObject<Dictionary<string, CollectionModel>>());
+            var result = await _client.Send(
+                $"{BaseCrudPath}/meta/scaffolds",
+                body: body,
+                query: query,
+                headers: headers);
+            
+            return result.ToObject<Dictionary<string, CollectionModel>>();
         }
 
         /// <summary>

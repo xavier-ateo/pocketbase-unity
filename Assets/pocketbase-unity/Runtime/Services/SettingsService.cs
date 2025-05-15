@@ -19,32 +19,36 @@ namespace PocketBaseSdk
         /// <summary>
         /// Fetch all available app settings.
         /// </summary>
-        public Task<Dictionary<string, object>> GetAll(
+        public async Task<Dictionary<string, object>> GetAll(
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            return _client.Send(
+            var result = await _client.Send(
                 "/api/settings",
                 query: query,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<Dictionary<string, object>>());
+            );
+
+            return result.ToObject<Dictionary<string, object>>();
         }
 
         /// <summary>
         /// Bulk update app settings.
         /// </summary>
-        public Task<Dictionary<string, object>> Update(
+        public async Task<Dictionary<string, object>> Update(
             Dictionary<string, object> body,
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
         {
-            return _client.Send(
+            var result = await _client.Send(
                 "/api/settings",
                 method: "PATCH",
                 body: body,
                 query: query,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<Dictionary<string, object>>());
+            );
+
+            return result.ToObject<Dictionary<string, object>>();
         }
 
         /// <summary>
@@ -102,7 +106,7 @@ namespace PocketBaseSdk
         /// <summary>
         /// Generates a new Apple OAuth2 client secret.
         /// </summary>
-        public Task<AppleClientSecret> GenerateAppleClientSecret(
+        public async Task<AppleClientSecret> GenerateAppleClientSecret(
             string clientId,
             string teamId,
             string keyId,
@@ -119,13 +123,15 @@ namespace PocketBaseSdk
             enrichedBody.TryAddNonNull("privateKey", privateKey);
             enrichedBody.TryAddNonNull("duration", duration);
 
-            return _client.Send(
+            var result = await _client.Send(
                 "/api/settings/apple/generate-client-secret",
                 method: "POST",
                 body: enrichedBody,
                 query: query,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<AppleClientSecret>());
+            );
+            
+            return result.ToObject<AppleClientSecret>();
         }
     }
 }

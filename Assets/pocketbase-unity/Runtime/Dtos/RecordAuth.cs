@@ -9,7 +9,7 @@ namespace PocketBaseSdk
     [Serializable]
     public class RecordAuth
     {
-        public RecordAuth(string token, BaseAuthModel record)
+        public RecordAuth(string token, RecordModel record)
         {
             Token = token;
             Record = record;
@@ -19,7 +19,7 @@ namespace PocketBaseSdk
         public string Token { get; private set; }
 
         [JsonProperty("record")]
-        public BaseAuthModel Record { get; private set; }
+        public RecordModel Record { get; private set; }
 
         public override string ToString() => JsonConvert.SerializeObject(this);
     }

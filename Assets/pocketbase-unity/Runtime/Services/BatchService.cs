@@ -40,7 +40,7 @@ namespace PocketBaseSdk
         /// <summary>
         /// Sends the batch requests.
         /// </summary>
-        public Task<List<BatchResult>> Send(
+        public async Task<List<BatchResult>> Send(
             Dictionary<string, object> body = null,
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
@@ -74,14 +74,16 @@ namespace PocketBaseSdk
             Dictionary<string, object> enrichedBody = new(body ?? new());
             enrichedBody.TryAdd("requests", jsonBody);
 
-            return _client.Send(
+            var result = await _client.Send(
                 "/api/batch",
                 method: "POST",
                 files: files,
                 headers: headers,
                 query: query,
                 body: enrichedBody
-            ).ContinueWith(t => t.Result.ToObject<List<BatchResult>>());
+            );
+
+            return result.ToObject<List<BatchResult>>();
         }
 
 

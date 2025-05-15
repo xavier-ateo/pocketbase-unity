@@ -2,18 +2,19 @@
 
 Unofficial Multi-platform Unity C# SDK for interacting with the [PocketBase Web API](https://pocketbase.io/docs).
 
-- [Supported Unity versions and platforms](#supported-unity-versions-and-platforms)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Caveats](#caveats)
-  - [File upload](#file-upload)
-  - [RecordModel](#recordmodel)
-  - [Error handling](#error-handling)
-  - [AuthStore](#authstore)
-  - [Binding filter parameters](#binding-filter-parameters)
-  - [Extension methods](#extension-methods)
-- [Services](#services)
-- [Development](#development)
+- [PocketBase Unity SDK](#pocketbase-unity-sdk)
+  - [Supported Unity versions and platforms](#supported-unity-versions-and-platforms)
+  - [Supported PocketBase versions](#supported-pocketbase-versions)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [Caveats](#caveats)
+    - [File upload](#file-upload)
+    - [RecordModel](#recordmodel)
+    - [Error handling](#error-handling)
+    - [AuthStore](#authstore)
+    - [Binding filter parameters](#binding-filter-parameters)
+  - [Services](#services)
+  - [Development](#development)
 
 ## Supported Unity versions and platforms
 
@@ -41,10 +42,10 @@ Open the *Package Manager* window, and click the *+* icon, then click on *Add pa
 following url and click *Add*:
 
 ```bash
-https://github.com/Sov3rain/pocketbase-unity.git?path=/Assets/pocketbase-unity#0.23.0
+https://github.com/Sov3rain/pocketbase-unity.git?path=/Assets/pocketbase-unity#0.23.5
 ```
 
-This will tag the package with the version `0.23.0`.
+This will tag the package with a specific version.
 
 You can also install the SDK by downloading the `.unitypackage` from the [releases page](https://github.com/Sov3rain/pocketbase-unity/releases) and importing it into your project.
 
@@ -60,13 +61,13 @@ public class PocketBaseExample : MonoBehaviour
 
     private async void Start()
     {
-        _pocketBase = new PocketBase("http://127.0.0.1:8090");
+        pb = new PocketBase("http://127.0.0.1:8090");
 
         // Authenticate as regular user
         var userData = await pb.Collection("users").AuthWithPassword("user@example.com", "password");
 
         // List and filter "example" collection records
-        var result = await pb.Collection("example").GetList<RecordModel>(
+        var result = await pb.Collection("example").GetList(
             page: 1,
             perPage: 20,
             filter: "status = true && created >= \"2022-08-01\"",
@@ -74,8 +75,8 @@ public class PocketBaseExample : MonoBehaviour
             expand: "someRelField"
         );
 
-        // Susbscribe to realtime "example" collection changes
-        pb.Collection("example").Subscribe<RecordModel>("*", e =>
+        // Subscribe to realtime "example" collection changes
+        pb.Collection("example").Subscribe("*", e =>
         {
             Debug.Log(e.Action); // "create", "update", "delete"
             Debug.Log(e.Record); // The changed record
@@ -100,14 +101,14 @@ using UnityEngine;
 
 public class PocketBaseExample : MonoBehaviour
 {
-    private PocketBase _pocketBase;
+    private PocketBase pb;
 
     private async void Start()
     {
-        pb= new PocketBase("http://127.0.0.1:8090");
+        pb = new PocketBase("http://127.0.0.1:8090");
 
-        var record = await pb.Collection("example").Create<RecordModel>(
-            body: new()
+        var record = await pb.Collection("example").Create(
+            body: new
             {
                 title = "Hello, World!"
             },
@@ -128,17 +129,27 @@ public class PocketBaseExample : MonoBehaviour
 
 ### RecordModel
 
-The SDK comes with several helpers to make it easier working with the `RecordService` and `RecordModel` DTO. Below is an example on how to access and cast record data values with the `RecordModel[string]` indexer:
+The SDK comes with several helpers to make it easier working with the `RecordService` and `RecordModel` DTO. Below is an example on how to access and cast record data values:
 
 ```csharp
 var record = await pb.Collection("example").GetOne("RECORD_ID");
 
+var options = record.Get<List<string>>("options");
+var email   = record.Get<string>("email");
+var status  = record.Get<int>("status");
+var price   = record.Get<float>("price");
+var nested1 = record.Get<RecordModel>("expand.user", null);
+var nested2 = record.Get<string>("expand.user.title", "N/A");
+```
 
+You can also use the `RecordModel[string]` indexer:
+
+```csharp
 var options = record["options"]?.ToObject<List<string>>();
-var email = (string)record["email"];
-var status = (int)record["status"];
-var price = (float)record["price"];
-var nested1 = record["expand"]?["user"]?.ToObject<RecordModel>();
+var email   = record["email"]?.ToString();
+var status  = record["status"]?.ToObject<int>();
+var price   = record["price"]?.ToObject<float>();
+var nested1 = record["expand"]?["user"]?.ToObject<RecordModel>() ?? null;
 var nested2 = record["expand"]?["user"]?["title"]?.ToString() ?? "N/A";
 ```
 
@@ -181,19 +192,6 @@ catch (ClientException e)
 {
     // Handle error
 }
-
-// Or if you are using the ContinueWithOnMainThread syntax:
-pb.Collection("users").AuthWithPassword("user@example.com", "password").ContinueWithOnMainThread(task => 
-{
-    if (task.IsFaulted)
-    {
-        // Handle error
-    }
-    else if (task.IsCompleted)
-    {
-        var user = task.Result;
-    }
-});
 ```
 
 All responses errors are wrapped in a `ClientException` object, which contains the following properties:
@@ -286,30 +284,6 @@ var filter = PocketBase.Filter(
 );
 
 var record = await pb.Collection("example").GetList<RecordModel>(filter: filter);
-```
-
-### Extension Methods
-
-The SDK provides some helper methods to help with common tasks. 
-
-One of them is the `ContinueWithOnMainThread` method, which allows you to run a continuation task on the main thread. This is useful when you need to update the UI from a background thread, as Unity does not allow you to do this on any other thread:
-
-```csharp
-private Text _title;
-
-// This will run on the main thread
-pb.Collection("users").AuthWithPassword("user@example.com", "password").ContinueWithOnMainThread(task => 
-{
-    if (task.IsFaulted)
-    {
-        // Handle error
-    }
-    else if (task.IsCompleted)
-    {
-        var user = task.Result;
-        _title.text = user.Email; // Will throw an exception if called on a background thread
-    }
-});
 ```
 
 ## Services

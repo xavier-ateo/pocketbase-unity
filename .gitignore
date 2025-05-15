@@ -77,3 +77,12 @@ crashlytics-build.properties
 # Private config files
 **/config.json
 **/config.json.meta
+
+# VSCode files
+.vscode/
+
+# MacOS files
+.DS_Store
+
+# PocketBase files
+.pocketbase

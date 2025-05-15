@@ -117,12 +117,12 @@ namespace PocketBaseSdk
                 }.Contains(_collectionIdOrName))
             {
                 // Merge the response fields with the current auth record
-                var currentExpand = _client.AuthStore.Record["expand"]?.ToObject<Dictionary<string, dynamic>>() ??
+                var currentExpand = _client.AuthStore.Record["expand"]?.ToObject<Dictionary<string, object>>() ??
                                     new();
 
-                var newExpand = item["expand"]?.ToObject<Dictionary<string, dynamic>>() ?? new();
+                var newExpand = item["expand"]?.ToObject<Dictionary<string, object>>() ?? new();
 
-                var data = new Dictionary<string, dynamic>(_client.AuthStore.Record.Data);
+                var data = _client.AuthStore.Record.Data.ToObject<Dictionary<string, object>>();
 
                 // Merge with the new item data
                 foreach (var (key, value) in item.Data)
@@ -176,7 +176,7 @@ namespace PocketBaseSdk
         /// <summary>
         /// Returns all available application auth methods.
         /// </summary>
-        public Task<AuthMethodsList> ListAuthMethods(
+        public async Task<AuthMethodsList> ListAuthMethods(
             string fields = null,
             Dictionary<string, object> query = null,
             Dictionary<string, string> headers = null)
@@ -186,11 +186,13 @@ namespace PocketBaseSdk
                 ["fields"] = "mfa,otp,password,oauth2"
             };
 
-            return _client.Send(
+            var result = await _client.Send(
                 $"{BaseCollectionPath}/auth-methods",
                 query: enrichedQuery,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<AuthMethodsList>());
+            );
+
+            return result.ToObject<AuthMethodsList>();
         }
 
         /// <summary>
@@ -574,7 +576,7 @@ namespace PocketBaseSdk
         /// <summary>
         /// Sends auth record OTP request to the provided email.
         /// </summary>
-        public Task<OTPResponse> RequestOTP(
+        public async Task<OTPResponse> RequestOTP(
             string email,
             Dictionary<string, object> body = null,
             Dictionary<string, object> query = null,
@@ -585,13 +587,15 @@ namespace PocketBaseSdk
             if (!string.IsNullOrEmpty(email))
                 enrichedBody.TryAdd("email", email);
 
-            return _client.Send(
+            var result = await _client.Send(
                 $"{BaseCollectionPath}/request-otp",
                 method: "POST",
                 body: enrichedBody,
                 query: query,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<OTPResponse>());
+            );
+
+            return result.ToObject<OTPResponse>();
         }
 
         /// <summary>
@@ -600,7 +604,7 @@ namespace PocketBaseSdk
         /// <remarks>
         /// On success, this method automatically updates the client's AuthStore.
         /// </remarks>
-        public Task<RecordAuth> AuthWithOTP(
+        public async Task<RecordAuth> AuthWithOTP(
             string otpId,
             string password,
             string expand = null,
@@ -625,13 +629,15 @@ namespace PocketBaseSdk
             if (!string.IsNullOrEmpty(fields))
                 enrichedQuery.TryAdd(nameof(fields), fields);
 
-            return _client.Send(
+            var result = await _client.Send(
                 $"{BaseCollectionPath}/auth-with-otp",
                 method: "POST",
                 body: enrichedBody,
                 query: enrichedQuery,
                 headers: headers
-            ).ContinueWith(t => t.Result.ToObject<RecordAuth>());
+            );
+
+            return result.ToObject<RecordAuth>();
         }
 
         /// <summary>
@@ -640,11 +646,11 @@ namespace PocketBaseSdk
         /// </summary>
         /// <remarks>
         /// <para>
-        /// If `duration` is 0 the generated auth token will fallback
+        /// If `duration` is 0, the generated auth token will fall back
         /// to the default collection auth token duration.
         /// </para>
         /// <para>
-        /// This action currently requires superusers privileges.
+        /// This action currently requires superuser's privileges.
         /// </para>
         /// </remarks>
         public async Task<PocketBase> Impersonate(
@@ -673,15 +679,15 @@ namespace PocketBaseSdk
                 lang: _client.Lang
             );
 
-            RecordAuth authData = await tempClient
-                .Send(
-                    $"{BaseCollectionPath}/impersonate/{HttpUtility.UrlEncode(recordId)}",
-                    method: "POST",
-                    body: enrichedBody,
-                    query: enrichedQuery,
-                    headers: enrichedHeaders
-                )
-                .ContinueWith(t => t.Result.ToObject<RecordAuth>());
+            var result = await tempClient.Send(
+                $"{BaseCollectionPath}/impersonate/{HttpUtility.UrlEncode(recordId)}",
+                method: "POST",
+                body: enrichedBody,
+                query: enrichedQuery,
+                headers: enrichedHeaders
+            );
+
+            RecordAuth authData = result.ToObject<RecordAuth>();
 
             tempClient.AuthStore.Save(authData.Token, authData.Record);
             // ---
