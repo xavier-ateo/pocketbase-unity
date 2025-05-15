@@ -30,18 +30,13 @@ namespace PocketBaseSdk
         public DateTime? Updated => Get<DateTime>("updated");
 
         [JsonExtensionData]
-        protected IDictionary<string, JToken> _data;
+        protected IDictionary<string, JToken> _data = new Dictionary<string, JToken>();
 
         [JsonIgnore]
         public JObject Data => JObject.Parse(ToString());
 
         [JsonIgnore]
-        public ICollection<string> AdditionalDataKeys => _additionalData.Keys;
-        
-        public RecordModel()
-        {
-            _additionalData = new Dictionary<string, JToken>();
-        }
+        public ICollection<string> Keys => _data.Keys;
 
         public static RecordModel Create(Dictionary<string, object> data)
         {
