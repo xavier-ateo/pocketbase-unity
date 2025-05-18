@@ -11,6 +11,10 @@ namespace PocketBaseSdk
         [JsonProperty("body")]
         public object Body { get; set; }
 
+        public BatchResult()
+        {
+        }
+        
         public BatchResult(int status, object body)
         {
             Status = status;

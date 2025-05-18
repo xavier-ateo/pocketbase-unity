@@ -9,6 +9,10 @@ namespace PocketBaseSdk
     [Serializable]
     public class RecordAuth
     {
+	    public RecordAuth()
+	    {
+	    }
+	    
         public RecordAuth(string token, RecordModel record)
         {
             Token = token;
