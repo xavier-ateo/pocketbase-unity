@@ -350,7 +350,7 @@ namespace PocketBaseSdk
 
         private Dictionary<string, SubscriptionFunc> GetSubscriptionsByTopic(string topic)
         {
-            topic = topic.Contains("?") ? topic : $"{topic}?";
+            // topic = topic.Contains("?") ? topic : $"{topic}?";
 
             return _subscriptions.Where(kvp => kvp.Key.StartsWith(topic))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
