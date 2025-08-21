@@ -11,8 +11,8 @@ namespace PocketBaseSdk
         [JsonIgnore]
         public string Id
         {
-            get => GetStringValue("id", "");
-            set => Set("id", value);
+	        get => this["id"].ToString();
+	        set => Set("id", value);
         }
 
         [JsonIgnore]
