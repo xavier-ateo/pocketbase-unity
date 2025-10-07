@@ -158,6 +158,7 @@ Alternatively, you can also create your own typed DTO data classes and use a sta
 ```csharp
 using PocketBaseSdk;
 using UnityEngine;
+using Newtonsoft.Json;
 
 public class Post : RecordModel
 {
