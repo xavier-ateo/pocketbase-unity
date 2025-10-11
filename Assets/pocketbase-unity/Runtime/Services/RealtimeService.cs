@@ -350,10 +350,20 @@ namespace PocketBaseSdk
 
         private Dictionary<string, SubscriptionFunc> GetSubscriptionsByTopic(string topic)
         {
+            var result = new Dictionary<string, SubscriptionFunc>();
+
+            // "?" so that it can be used as end delimiter for the topic
             topic = topic.Contains("?") ? topic : $"{topic}?";
 
-            return _subscriptions.Where(kvp => kvp.Key.StartsWith(topic))
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            foreach (var (key, value) in _subscriptions)
+            {
+                if ($"{key}?".StartsWith(topic))
+                {
+                    result[key] = value;
+                }
+            }
+
+            return result;
         }
     }
 }
