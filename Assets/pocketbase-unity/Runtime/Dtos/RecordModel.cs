@@ -33,7 +33,7 @@ namespace PocketBaseSdk
         private IDictionary<string, JToken> _data;
 
         [JsonIgnore]
-        public JObject Data => JObject.Parse(ToString());
+        public JObject Data => new JObject(_data);
 
         public static RecordModel Create(Dictionary<string, object> data)
         {
