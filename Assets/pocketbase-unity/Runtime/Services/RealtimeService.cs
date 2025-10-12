@@ -215,17 +215,20 @@ namespace PocketBaseSdk
 
             foreach (string key in subs.Keys)
             {
-                if (_subscriptions[key] == null)
+                var subscription = _subscriptions[key];
+                if (subscription == null)
                 {
                     // Nothing to unsubscribe from.
                     continue;
                 }
 
-                var beforeLength = _subscriptions[key]?.GetInvocationList().Length ?? 0;
+                var beforeLength = subscription.GetInvocationList().Length;
 
                 _subscriptions[key] -= listener;
 
-                var afterLength = _subscriptions[key]?.GetInvocationList().Length ?? 0;
+                // Re-get the subscription after modification to ensure we have the current state
+                var updatedSubscription = _subscriptions[key];
+                var afterLength = updatedSubscription?.GetInvocationList().Length ?? 0;
 
                 if (beforeLength == afterLength)
                 {

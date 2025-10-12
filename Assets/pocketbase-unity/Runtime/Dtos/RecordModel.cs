@@ -64,7 +64,7 @@ namespace PocketBaseSdk
         /// </summary>
         public void Set(string fieldName, object value)
         {
-            _data[fieldName] = JToken.FromObject(value);
+            _data[fieldName] = value == null ? JValue.CreateNull() : JToken.FromObject(value);
         }
 
         public List<T> GetListValue<T>(string fieldNameOrPath, List<T> defaultValue = null)
