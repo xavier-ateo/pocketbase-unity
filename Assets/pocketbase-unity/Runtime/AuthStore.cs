@@ -51,9 +51,13 @@ namespace PocketBaseSdk
             var jsonString = Encoding.UTF8.GetString(jsonBytes);
             var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonString);
 
-            long exp;
-            var expValue = data["exp"];
+            // Check if data is null or doesn't contain the "exp" key
+            if (data?.TryGetValue("exp", out var expValue) != true)
+            {
+                return false;
+            }
 
+            long exp;
             if (expValue is long longExp)
             {
                 exp = longExp;
