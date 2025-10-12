@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **CRITICAL**: Fixed stack overflow risk in `BaseCrudService.GetFullList` method. Converted recursive implementation to iterative approach to eliminate potential stack overflow exceptions when fetching large datasets with many pages. The method now uses a `while` loop instead of recursive calls.
+- **CRITICAL**: Fixed stack overflow risk in `BaseCrudService.GetFullList` and `SyncQueue.Dequeue` methods. Converted recursive implementations to iterative approach to eliminate potential stack overflow exceptions.
 
 ## [0.23.7] - 2025-10-11
 

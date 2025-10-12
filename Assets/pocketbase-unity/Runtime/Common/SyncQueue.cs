@@ -41,37 +41,25 @@ namespace PocketBaseSdk
         /// </summary>
         private async void Dequeue()
         {
-            if (!_operations.Any())
+            while (_operations.Any())
             {
-                return;
-            }
-
-            try
-            {
-                await _operations.First()();
-                _operations.RemoveAt(0);
-
-                if (!_operations.Any())
+                try
                 {
-                    if (_onComplete != null)
-                    {
-                        _onComplete();
-                    }
-
-                    return; // no more operations
+                    await _operations.First()();
+                    _operations.RemoveAt(0);
                 }
-
-                // proceed with the next operation from the queue
-                Dequeue();
+                catch (Exception e)
+                {
+                    // Handle any exceptions from the async operation
+                    _operations.RemoveAt(0);
+                    Debug.LogException(e);
+                }
             }
-            catch (Exception e)
-            {
-                // Handle any exceptions from the async operation
-                // You might want to add proper exception handling here
-                _operations.RemoveAt(0);
-                Dequeue();
 
-                Debug.LogException(e);
+            // All operations completed, call the completion callback if provided
+            if (_onComplete != null)
+            {
+                _onComplete();
             }
         }
     }
