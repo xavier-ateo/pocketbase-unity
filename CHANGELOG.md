@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CRITICAL**: Fixed stack overflow risk in `BaseCrudService.GetFullList` and `SyncQueue.Dequeue` methods. Converted recursive implementations to iterative approach to eliminate potential stack overflow exceptions.
 - **HIGH**: Fixed null reference exception in `PocketBase.NormalizeQueryParameters` method. Added null-conditional operator to safely handle null parameter values when converting to string.
 - **HIGH**: Fixed null reference exception in `AuthStore.IsValid` method during JWT token parsing. Added proper null checking and safe dictionary access for the "exp" key to prevent exceptions during token validation.
+- **MEDIUM**: Fixed exception handling in `AuthStore.IsValid` method during Base64 conversion and JSON parsing. Added try-catch block to handle potential exceptions during token validation.
 
 ## [0.23.7] - 2025-10-11
 
