@@ -12,6 +12,9 @@ namespace PocketBaseSdk
     {
         public static TaskAwaiter GetAwaiter(this AsyncOperation asyncOp)
         {
+            if (asyncOp.isDone)
+                return Task.CompletedTask.GetAwaiter();
+
             var tcs = new TaskCompletionSource<object>();
             asyncOp.completed += _ => { tcs.SetResult(null); };
             return ((Task)tcs.Task).GetAwaiter();

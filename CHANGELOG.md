@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed exception handling in `RecordService.ConfirmEmailChange` method. Added try-catch block to handle potential exceptions during token validation.
 - Fixed exception handling in `RecordService.ConfirmVerification` method. Added try-catch block to handle potential exceptions during token validation.
 - Fixed unsafe access in `SseClient.Close` method. Added null check before disposing UnityWebRequest to prevent exceptions when closing the client before a connection is established.
-- 
+- Fixed small performance issue in `ExtensionMethods.GetAwaiter` method. Added null check before creating new task to prevent unnecessary task creation when the operation is already completed.
 
 ## [0.23.7] - 2025-10-11
 
