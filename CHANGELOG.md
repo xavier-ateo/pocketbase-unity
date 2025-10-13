@@ -40,7 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.23.5] - 2025-04-29
 
-### Removed
+### Removed
 
 - Task extension methods `ContinueWithOnMainThread` are no longer part of the SDK.
 
