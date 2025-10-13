@@ -80,7 +80,7 @@ namespace PocketBaseSdk
         /// </remarks>
         public Task Unsubscribe(string topic = null)
         {
-            return string.IsNullOrEmpty(topic)
+            return !string.IsNullOrEmpty(topic)
                 ? _client.Realtime.Unsubscribe($"{_collectionIdOrName}/{topic}")
                 : _client.Realtime.UnsubscribeByPrefix(_collectionIdOrName);
         }
