@@ -9,13 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **CRITICAL**: Fixed stack overflow risk in `BaseCrudService.GetFullList` and `SyncQueue.Dequeue` methods. Converted recursive implementations to iterative approach to eliminate potential stack overflow exceptions.
-- **HIGH**: Fixed null reference exception in `PocketBase.NormalizeQueryParameters` method. Added null-conditional operator to safely handle null parameter values when converting to string.
-- **HIGH**: Fixed null reference exception in `AuthStore.IsValid` method during JWT token parsing. Added proper null checking and safe dictionary access for the "exp" key to prevent exceptions during token validation.
-- **MEDIUM**: Fixed exception handling in `AuthStore.IsValid` method during Base64 conversion and JSON parsing. Added try-catch block to handle potential exceptions during token validation.
-- **LOW**: Fixed null reference exception in `Caster.Extract` method. Added null check before calling ToObject to prevent exceptions when extracting null values.
-- **LOW**: Fixed null validation in `RecordModel.Set` method. Added proper null handling to safely set null values using JValue.CreateNull instead of JToken.FromObject.
-- **LOW**: Fixed unsafe dictionary access in `RealtimeService.UnsubscribeByTopicAndListener` method. Improved subscription reference handling to prevent potential null reference exceptions during concurrent access.
+- Fixed stack overflow risk in `BaseCrudService.GetFullList` and `SyncQueue.Dequeue` methods. Converted recursive implementations to iterative approach to eliminate potential stack overflow exceptions.
+- Fixed null reference exception in `PocketBase.NormalizeQueryParameters` method. Added null-conditional operator to safely handle null parameter values when converting to string.
+- Fixed null reference exception in `AuthStore.IsValid` method during JWT token parsing. Added proper null checking and safe dictionary access for the "exp" key to prevent exceptions during token validation.
+- Fixed exception handling in `AuthStore.IsValid` method during Base64 conversion and JSON parsing. Added try-catch block to handle potential exceptions during token validation.
+- Fixed null reference exception in `Caster.Extract` method. Added null check before calling ToObject to prevent exceptions when extracting null values.
+- Fixed null validation in `RecordModel.Set` method. Added proper null handling to safely set null values using JValue.CreateNull instead of JToken.FromObject.
+- Fixed unsafe dictionary access in `RealtimeService.UnsubscribeByTopicAndListener` method. Improved subscription reference handling to prevent potential null reference exceptions during concurrent access.
+- Fixed exception handling in `RecordService.ConfirmEmailChange` method. Added try-catch block to handle potential exceptions during token validation.
+- Fixed exception handling in `RecordService.ConfirmVerification` method. Added try-catch block to handle potential exceptions during token validation.
+- Fixed unsafe access in `SseClient.Close` method. Added null check before disposing UnityWebRequest to prevent exceptions when closing the client before a connection is established.
+- 
 
 ## [0.23.7] - 2025-10-11
 
