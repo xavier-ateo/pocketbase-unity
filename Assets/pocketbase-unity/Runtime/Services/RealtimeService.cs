@@ -173,25 +173,25 @@ namespace PocketBaseSdk
         {
             var beforeLength = _subscriptions.Count;
 
+            // Remove matching subscriptions
+            // "?" so that it can be used as an end delimiter for the prefix
             _subscriptions.RemoveWhere(kvp => $"{kvp.Key}?".StartsWith(topicPrefix));
 
+            // No changes
             if (beforeLength == _subscriptions.Count)
             {
                 return Task.CompletedTask;
             }
 
+            // No more subscriptions, close the sse connection
             if (!HasNonEmptyTopic())
             {
                 Disconnect();
                 return Task.CompletedTask;
             }
 
-            if (!string.IsNullOrEmpty(ClientId))
-            {
-                return SubmitSubscriptions();
-            }
-
-            return Task.CompletedTask;
+            // Otherwise - notify the server about the subscription changes
+            return !string.IsNullOrEmpty(ClientId) ? SubmitSubscriptions() : Task.CompletedTask;
         }
 
         /// <summary>
@@ -355,7 +355,7 @@ namespace PocketBaseSdk
         {
             var result = new Dictionary<string, SubscriptionFunc>();
 
-            // "?" so that it can be used as end delimiter for the topic
+            // "?" so that it can be used as an end delimiter for the topic
             topic = topic.Contains("?") ? topic : $"{topic}?";
 
             foreach (var (key, value) in _subscriptions)
