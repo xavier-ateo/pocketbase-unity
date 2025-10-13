@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
@@ -16,8 +15,6 @@ namespace PocketBaseSdk
     /// </remarks>
     public class FileService : BaseService
     {
-        public static readonly Uri EmptyUri = new Uri("about:blank", UriKind.Absolute);
-
         public FileService(PocketBase client) : base(client)
         {
         }
@@ -62,7 +59,7 @@ namespace PocketBaseSdk
             Dictionary<string, string> headers = null)
         {
             JObject jObj = await _client.Send(
-                "api/files/token",
+                "/api/files/token",
                 method: "POST",
                 body: body,
                 query: query,

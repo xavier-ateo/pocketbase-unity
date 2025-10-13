@@ -34,7 +34,7 @@ namespace PocketBaseSdk
             enrichedQuery.TryAddNonNull("sort", sort);
 
             var result = await _client.Send(
-                "api/logs",
+                "/api/logs",
                 query: enrichedQuery,
                 headers: headers
             );
