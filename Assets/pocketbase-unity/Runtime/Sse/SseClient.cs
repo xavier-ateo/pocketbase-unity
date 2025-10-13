@@ -60,7 +60,7 @@ namespace PocketBaseSdk
 
             _isClosed = true;
             _sseMessage = null;
-            _request.Dispose();
+            _request?.Dispose();
             _request = null;
 
             Application.quitting -= Close;
