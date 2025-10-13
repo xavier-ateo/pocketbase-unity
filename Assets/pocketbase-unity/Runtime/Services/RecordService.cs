@@ -345,7 +345,7 @@ namespace PocketBaseSdk
             }
 
             if (_client.AuthStore.Record is { } record &&
-                !(bool)record["verified"] &&
+                !record.GetBoolValue("verified", true) &&
                 record.Id == (string)payload["id"] &&
                 record.CollectionId == (string)payload["collectionId"])
             {

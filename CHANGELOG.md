@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed incomplete error logging in `AsyncAuthStore.LoadInitial` method.
 - Fixed wrong path in `FileService.GetToken` method.
 - Fixed wrong path in `LogService.GetList` method.
+- Fixed condition in `RecordService.ConfirmVerification` method.
 
 ## [0.23.7] - 2025-10-11
 
