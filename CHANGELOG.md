@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.8] - 2025-10-12
+
+### Fixed
+
+- Fixed stack overflow risk in `BaseCrudService.GetFullList` and `SyncQueue.Dequeue` methods. Converted recursive implementations to iterative approach to eliminate potential stack overflow exceptions.
+- Fixed null reference exception in `PocketBase.NormalizeQueryParameters` method. Added null-conditional operator to safely handle null parameter values when converting to string.
+- Fixed null reference exception in `AuthStore.IsValid` method during JWT token parsing. Added proper null checking and safe dictionary access for the "exp" key to prevent exceptions during token validation.
+- Fixed exception handling in `AuthStore.IsValid` method during Base64 conversion and JSON parsing. Added try-catch block to handle potential exceptions during token validation.
+- Fixed null reference exception in `Caster.Extract` method. Added null check before calling ToObject to prevent exceptions when extracting null values.
+- Fixed null validation in `RecordModel.Set` method. Added proper null handling to safely set null values using JValue.CreateNull instead of JToken.FromObject.
+- Fixed unsafe dictionary access in `RealtimeService.UnsubscribeByTopicAndListener` method. Improved subscription reference handling to prevent potential null reference exceptions during concurrent access.
+- Fixed exception handling in `RecordService.ConfirmEmailChange` method. Added try-catch block to handle potential exceptions during token validation.
+- Fixed exception handling in `RecordService.ConfirmVerification` method. Added try-catch block to handle potential exceptions during token validation.
+- Fixed unsafe access in `SseClient.Close` method. Added null check before disposing UnityWebRequest to prevent exceptions when closing the client before a connection is established.
+- Fixed small performance issue in `ExtensionMethods.GetAwaiter` method. Added null check before creating new task to prevent unnecessary task creation when the operation is already completed.
+- Fixed inverted logic in `RecordService.Unsubscribe()` method. The method now properly unsubscribes from all topics when `topic` is null or empty.
+- Fixed incomplete error logging in `AsyncAuthStore.LoadInitial` method.
+- Fixed wrong path in `FileService.GetToken` method.
+- Fixed wrong path in `LogService.GetList` method.
+- Fixed condition in `RecordService.ConfirmVerification` method.
+
+## [0.23.7] - 2025-10-11
+
+### Fixed
+
+- **CRITICAL**: Fixed stack overflow exception in `RecordModel.Data` property caused by infinite recursion between `Data` property and `ToString()` method. The `Data` property now directly constructs a `JObject` from the underlying `_data` field instead of parsing the serialized string representation.
+
+## [0.23.6] - 2025-10-11
+
+### Fixed
+
+- Fixed `RealtimeService.Unsubscribe` not working properly because of wrong topic matching logic in `GetSubscriptionsByTopic` method.
+
 ## [0.23.5] - 2025-04-29
 
 ### Removed

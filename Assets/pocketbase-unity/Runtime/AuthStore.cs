@@ -47,23 +47,34 @@ namespace PocketBaseSdk
                     break;
             }
 
-            var jsonBytes = Convert.FromBase64String(tokenPart);
-            var jsonString = Encoding.UTF8.GetString(jsonBytes);
-            var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonString);
-
-            long exp;
-            var expValue = data["exp"];
-
-            if (expValue is long longExp)
+            try
             {
-                exp = longExp;
-            }
-            else if (!long.TryParse(expValue?.ToString(), out exp))
-            {
-                exp = 0;
-            }
+                var jsonBytes = Convert.FromBase64String(tokenPart);
+                var jsonString = Encoding.UTF8.GetString(jsonBytes);
+                var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonString);
 
-            return exp > DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                // Check if data is null or doesn't contain the "exp" key
+                if (data?.TryGetValue("exp", out var expValue) != true)
+                {
+                    return false;
+                }
+
+                long exp;
+                if (expValue is long longExp)
+                {
+                    exp = longExp;
+                }
+                else if (!long.TryParse(expValue?.ToString(), out exp))
+                {
+                    exp = 0;
+                }
+
+                return exp > DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         /// <summary>

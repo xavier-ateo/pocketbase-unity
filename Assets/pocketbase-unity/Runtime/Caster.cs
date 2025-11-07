@@ -29,6 +29,12 @@ namespace PocketBaseSdk
                     value = value[pathPart];
                 }
 
+                // Check if value is null before calling ToObject
+                if (value == null)
+                {
+                    return defaultValue;
+                }
+
                 return value.ToObject<T>();
             }
             catch (System.Exception)

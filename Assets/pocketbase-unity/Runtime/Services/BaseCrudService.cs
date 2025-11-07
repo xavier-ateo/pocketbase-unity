@@ -21,7 +21,7 @@ namespace PocketBaseSdk
         /// <summary>
         /// Returns a list with all item batch fetched at once.
         /// </summary>
-        public Task<List<T>> GetFullList(
+        public async Task<List<T>> GetFullList(
             int batch = 500,
             string expand = null,
             string filter = null,
@@ -31,8 +31,9 @@ namespace PocketBaseSdk
             Dictionary<string, string> headers = null)
         {
             List<T> result = new();
+            int page = 1;
 
-            async Task<List<T>> Request(int page)
+            while (true)
             {
                 var list = await GetList(
                     skipTotal: true,
@@ -48,15 +49,16 @@ namespace PocketBaseSdk
 
                 result.AddRange(list.Items);
 
-                if (list.Items.Count == list.PerPage)
+                // If we received fewer items than the batch size, we've reached the end
+                if (list.Items.Count < list.PerPage)
                 {
-                    await Request(page + 1);
+                    break;
                 }
 
-                return result;
+                page++;
             }
 
-            return Request(1);
+            return result;
         }
 
         public async Task<ResultList<T>> GetList(

@@ -213,7 +213,7 @@ namespace PocketBaseSdk
 
             foreach (var param in queryParameters)
             {
-                query[param.Key] = param.Value.ToString();
+                query[param.Key] = param.Value?.ToString() ?? string.Empty;
             }
 
             return query.ToString();

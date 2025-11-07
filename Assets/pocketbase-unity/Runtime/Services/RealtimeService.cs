@@ -173,25 +173,25 @@ namespace PocketBaseSdk
         {
             var beforeLength = _subscriptions.Count;
 
+            // Remove matching subscriptions
+            // "?" so that it can be used as an end delimiter for the prefix
             _subscriptions.RemoveWhere(kvp => $"{kvp.Key}?".StartsWith(topicPrefix));
 
+            // No changes
             if (beforeLength == _subscriptions.Count)
             {
                 return Task.CompletedTask;
             }
 
+            // No more subscriptions, close the sse connection
             if (!HasNonEmptyTopic())
             {
                 Disconnect();
                 return Task.CompletedTask;
             }
 
-            if (!string.IsNullOrEmpty(ClientId))
-            {
-                return SubmitSubscriptions();
-            }
-
-            return Task.CompletedTask;
+            // Otherwise - notify the server about the subscription changes
+            return !string.IsNullOrEmpty(ClientId) ? SubmitSubscriptions() : Task.CompletedTask;
         }
 
         /// <summary>
@@ -215,17 +215,20 @@ namespace PocketBaseSdk
 
             foreach (string key in subs.Keys)
             {
-                if (_subscriptions[key] == null)
+                var subscription = _subscriptions[key];
+                if (subscription == null)
                 {
                     // Nothing to unsubscribe from.
                     continue;
                 }
 
-                var beforeLength = _subscriptions[key]?.GetInvocationList().Length ?? 0;
+                var beforeLength = subscription.GetInvocationList().Length;
 
                 _subscriptions[key] -= listener;
 
-                var afterLength = _subscriptions[key]?.GetInvocationList().Length ?? 0;
+                // Re-get the subscription after modification to ensure we have the current state
+                var updatedSubscription = _subscriptions[key];
+                var afterLength = updatedSubscription?.GetInvocationList().Length ?? 0;
 
                 if (beforeLength == afterLength)
                 {
@@ -350,10 +353,20 @@ namespace PocketBaseSdk
 
         private Dictionary<string, SubscriptionFunc> GetSubscriptionsByTopic(string topic)
         {
-            // topic = topic.Contains("?") ? topic : $"{topic}?";
+            var result = new Dictionary<string, SubscriptionFunc>();
 
-            return _subscriptions.Where(kvp => kvp.Key.StartsWith(topic))
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            // "?" so that it can be used as an end delimiter for the topic
+            topic = topic.Contains("?") ? topic : $"{topic}?";
+
+            foreach (var (key, value) in _subscriptions)
+            {
+                if ($"{key}?".StartsWith(topic))
+                {
+                    result[key] = value;
+                }
+            }
+
+            return result;
         }
     }
 }

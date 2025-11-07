@@ -33,7 +33,7 @@ namespace PocketBaseSdk
         protected IDictionary<string, JToken> _data = new Dictionary<string, JToken>();
 
         [JsonIgnore]
-        public JObject Data => JObject.Parse(ToString());
+        public JObject Data => new JObject(_data);
 
         [JsonIgnore]
         public ICollection<string> Keys => _data.Keys;
@@ -67,7 +67,7 @@ namespace PocketBaseSdk
         /// </summary>
         public void Set(string fieldName, object value)
         {
-            _data[fieldName] = JToken.FromObject(value);
+            _data[fieldName] = value == null ? JValue.CreateNull() : JToken.FromObject(value);
         }
 
         public List<T> GetListValue<T>(string fieldNameOrPath, List<T> defaultValue = null)

@@ -80,7 +80,7 @@ namespace PocketBaseSdk
         /// </remarks>
         public Task Unsubscribe(string topic = null)
         {
-            return string.IsNullOrEmpty(topic)
+            return !string.IsNullOrEmpty(topic)
                 ? _client.Realtime.Unsubscribe($"{_collectionIdOrName}/{topic}")
                 : _client.Realtime.UnsubscribeByPrefix(_collectionIdOrName);
         }
@@ -330,12 +330,22 @@ namespace PocketBaseSdk
                 return;
             }
 
-            var payloadPart = parts[1];
-            var payload = JsonConvert.DeserializeObject<Dictionary<string, object>>(
-                Encoding.UTF8.GetString(Convert.FromBase64String(payloadPart)));
+            Dictionary<string, object> payload;
+
+            try
+            {
+                string payloadPart = parts[1];
+                byte[] base64 = Convert.FromBase64String(payloadPart);
+                string jsonString = Encoding.UTF8.GetString(base64);
+                payload = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonString);
+            }
+            catch (Exception)
+            {
+                return;
+            }
 
             if (_client.AuthStore.Record is { } record &&
-                (bool)record["verified"] is false &&
+                !record.GetBoolValue("verified", true) &&
                 record.Id == (string)payload["id"] &&
                 record.CollectionId == (string)payload["collectionId"])
             {
@@ -398,9 +408,19 @@ namespace PocketBaseSdk
                 return;
             }
 
-            var payloadPart = parts[1];
-            var payload = JsonConvert.DeserializeObject<Dictionary<string, object>>(
-                Encoding.UTF8.GetString(Convert.FromBase64String(payloadPart)));
+            Dictionary<string, object> payload;
+
+            try
+            {
+                string payloadPart = parts[1];
+                byte[] base64 = Convert.FromBase64String(payloadPart);
+                string jsonString = Encoding.UTF8.GetString(base64);
+                payload = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonString);
+            }
+            catch (Exception)
+            {
+                return;
+            }
 
             if (_client.AuthStore.Record is { } model &&
                 model.Id == (string)payload["id"] &&
