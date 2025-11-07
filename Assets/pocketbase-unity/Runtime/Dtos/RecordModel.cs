@@ -33,7 +33,20 @@ namespace PocketBaseSdk
         protected IDictionary<string, JToken> _data = new Dictionary<string, JToken>();
 
         [JsonIgnore]
-        public JObject Data => new JObject(_data);
+        public JObject Data
+        {
+            get
+            {
+                JObject jObj = new JObject();
+                
+                foreach (var kvp in _data)
+                {
+                    jObj[kvp.Key] = kvp.Value;
+                }
+                
+                return jObj;
+            }
+        }
 
         [JsonIgnore]
         public ICollection<string> Keys => _data.Keys;
