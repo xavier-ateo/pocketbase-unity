@@ -1,9 +1,20 @@
-# PocketBase Unity - Changelog
+﻿# PocketBase Unity - Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.23.9] - 2025-11-13
+
+### Fixed
+
+- Fixed UTF-8 multibyte character handling in `DownloadHandlerSseBase.ReceiveData` method. The SSE client now properly handles UTF-8 multibyte sequences that are split across data chunks by using a stateful UTF-8 decoder instead of naive byte-to-char casting. This prevents character corruption when receiving SSE events containing non-ASCII characters. (Thanks @xavier-ateo!)
+- Fixed serialization exception in `RecordModel.Data` property when the underlying dictionary contains `KeyValuePair` entries. The property now manually constructs the `JObject` by iterating through the dictionary entries instead of using the `JObject` constructor directly.
+
+### Changed
+
+- Cleaned up `RecordModel` default values initialization and removed redundant generic type specifications for improved code clarity.
 
 ## [0.23.8] - 2025-10-12
 
@@ -40,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.23.5] - 2025-04-29
 
-### Removed
+### Removed
 
 - Task extension methods `ContinueWithOnMainThread` are no longer part of the SDK.
 
@@ -122,7 +133,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- The majority of the SDK methods now returns an instance of `RecordModel`.  
+- The majority of the SDK methods now returns an instance of `RecordModel`.  
 
 ## [0.22.0] - 2024-10-16
 

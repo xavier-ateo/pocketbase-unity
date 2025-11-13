@@ -21,17 +21,17 @@ namespace PocketBaseSdk
 
         protected override bool ReceiveData(byte[] newData, int dataLength)
         {
-            // Calculate max chars needed for this chunk (UTF-8: 1 byte = 1 char in worst case)
+            // Calculate max chars needed for this chunk (UTF-8: 1 byte = 1 char in the worst case)
             int maxCharCount = Encoding.UTF8.GetMaxCharCount(dataLength);
             char[] charBuffer = new char[maxCharCount];
-            
-            // Use stateful decoder to handle multi-byte UTF-8 sequences split across chunks
+
+            // Use stateful decoder to handle multibyte UTF-8 sequences split across chunks
             int charCount = _utf8Decoder.GetChars(newData, 0, dataLength, charBuffer, 0);
-            
+
             for (int i = 0; i < charCount; i++)
             {
                 char c = charBuffer[i];
-                
+
                 if (c == '\n')
                 {
                     OnNewLineReceived(_currentLine.ToString());

@@ -37,17 +37,20 @@ namespace PocketBaseSdk
         {
             get
             {
-                JObject jObj = new JObject();
-                
+                JObject jObject = new();
+
+                if (_data is null)
+                    return jObject;
+
                 foreach (var kvp in _data)
                 {
-                    jObj[kvp.Key] = kvp.Value;
+                    jObject[kvp.Key] = kvp.Value;
                 }
-                
-                return jObj;
+
+                return jObject;
             }
         }
-
+        
         [JsonIgnore]
         public ICollection<string> Keys => _data.Keys;
 
@@ -63,7 +66,7 @@ namespace PocketBaseSdk
         /// </summary>
         /// <remarks>
         /// <para>
-        /// If explicitly set, returns <paramref name="defaultValue"/> on missing path.
+        /// If explicitly set, returns <paramref name="defaultValue"/> when the path is missing.
         /// </para>
         /// <para>
         /// For more details about the casting rules, please refer to
@@ -72,7 +75,7 @@ namespace PocketBaseSdk
         /// </remarks>
         public T Get<T>(string fieldNameOrPath, T defaultValue = default)
         {
-            return Caster.Extract<T>(Data, fieldNameOrPath, defaultValue);
+            return Caster.Extract(Data, fieldNameOrPath, defaultValue);
         }
 
         /// <summary>
@@ -85,27 +88,27 @@ namespace PocketBaseSdk
 
         public List<T> GetListValue<T>(string fieldNameOrPath, List<T> defaultValue = null)
         {
-            return Get<List<T>>(fieldNameOrPath, defaultValue);
+            return Get(fieldNameOrPath, defaultValue);
         }
 
         public string GetStringValue(string fieldNameOrPath, string defaultValue = null)
         {
-            return Get<string>(fieldNameOrPath, defaultValue);
+            return Get(fieldNameOrPath, defaultValue);
         }
 
-        public bool GetBoolValue(string fieldNameOrPath, bool defaultValue = default)
+        public bool GetBoolValue(string fieldNameOrPath, bool defaultValue = false)
         {
-            return Get<bool>(fieldNameOrPath, defaultValue);
+            return Get(fieldNameOrPath, defaultValue);
         }
 
-        public int GetIntValue(string fieldNameOrPath, int defaultValue = default)
+        public int GetIntValue(string fieldNameOrPath, int defaultValue = 0)
         {
-            return Get<int>(fieldNameOrPath, defaultValue);
+            return Get(fieldNameOrPath, defaultValue);
         }
 
-        public float GetFloatValue(string fieldNameOrPath, float defaultValue = default)
+        public float GetFloatValue(string fieldNameOrPath, float defaultValue = 0)
         {
-            return Get<float>(fieldNameOrPath, defaultValue);
+            return Get(fieldNameOrPath, defaultValue);
         }
 
         public JToken this[string key]
