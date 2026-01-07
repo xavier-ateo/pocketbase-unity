@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace PocketBaseSdk
 {
@@ -110,10 +111,28 @@ namespace PocketBaseSdk
             }
             else if (!string.IsNullOrEmpty(ClientId) && _subscriptions[key] != null)
             {
-                await SubmitSubscriptions();
+                await SubmitSubscriptionsWithReconnect();
             }
 
             return async () => { await UnsubscribeByTopicAndListener(topic, listener); };
+        }
+        
+        /// <summary>
+        /// Submits subscriptions and handles stale client ID by reconnecting.
+        /// </summary>
+        private async Task SubmitSubscriptionsWithReconnect()
+        {
+	        try
+	        {
+		        await SubmitSubscriptions();
+	        }
+	        catch (ClientException ex) when (ex.StatusCode == 404)
+	        {
+		        Debug.LogWarning($"[RealtimeService] Stale client ID detected (404), reconnecting...");
+                
+		        Disconnect();
+		        await Connect();
+	        }
         }
 
         /// Unsubscribe from all subscription listeners with the specified topic.
