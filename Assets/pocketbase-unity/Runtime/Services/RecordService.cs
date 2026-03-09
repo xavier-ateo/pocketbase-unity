@@ -61,7 +61,26 @@ namespace PocketBaseSdk
         {
             return _client.Realtime.Subscribe(
                 $"{_collectionIdOrName}/{topic}",
-                e => callback(JsonConvert.DeserializeObject<RecordSubscriptionEvent>(e.Data)),
+                e =>
+                {
+                    // Manual parsing to avoid JsonConvert.DeserializeObject reflection overhead.
+                    // RecordModel uses [JsonExtensionData] — Newtonsoft's SetExtensionData + JToken.ReadFrom
+                    // runs per field via reflection. Direct JObject indexer population is O(1) per field.
+                    JObject json = JObject.Parse(e.Data);
+                    var record = new RecordModel();
+                    if (json["record"] is JObject recordJson)
+                    {
+                        foreach (JProperty prop in recordJson.Properties())
+                        {
+                            record[prop.Name] = prop.Value;
+                        }
+                    }
+                    callback(new RecordSubscriptionEvent
+                    {
+                        Action = (string)json["action"],
+                        Record = record,
+                    });
+                },
                 expand,
                 filter,
                 fields,
