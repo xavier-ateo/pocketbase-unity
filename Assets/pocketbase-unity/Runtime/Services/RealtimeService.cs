@@ -350,11 +350,21 @@ namespace PocketBaseSdk
             return completer.Task;
         }
 
+        /// <summary>
+        /// Disconnects the SSE connection and clears all subscriptions without
+        /// notifying the server. Use this for full teardown before resubscribing.
+        /// </summary>
+        public void DisconnectAndClearSubscriptions()
+        {
+            _subscriptions.Clear();
+            Disconnect();
+        }
+
         private void Disconnect()
         {
+            ClientId = string.Empty;
             _sse?.Close();
             _sse = null;
-            ClientId = string.Empty;
         }
 
         private Task SubmitSubscriptions()
