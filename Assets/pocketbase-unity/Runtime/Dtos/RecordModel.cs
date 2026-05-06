@@ -11,7 +11,7 @@ namespace PocketBaseSdk
         [JsonIgnore]
         public string Id
         {
-	        get => this["id"].ToString();
+	        get => this["id"]?.ToString() ?? "";
 	        set => Set("id", value);
         }
 
