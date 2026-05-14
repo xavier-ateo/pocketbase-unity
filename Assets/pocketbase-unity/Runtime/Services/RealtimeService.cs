@@ -171,7 +171,7 @@ namespace PocketBaseSdk
 
             if (!string.IsNullOrEmpty(ClientId) && needToSubmit)
             {
-                return SubmitSubscriptions();
+                return SubmitSubscriptionsWithReconnect();
             }
 
             return Task.CompletedTask;
@@ -210,7 +210,7 @@ namespace PocketBaseSdk
             }
 
             // Otherwise - notify the server about the subscription changes
-            return !string.IsNullOrEmpty(ClientId) ? SubmitSubscriptions() : Task.CompletedTask;
+            return !string.IsNullOrEmpty(ClientId) ? SubmitSubscriptionsWithReconnect() : Task.CompletedTask;
         }
 
         /// <summary>
@@ -269,7 +269,7 @@ namespace PocketBaseSdk
 
             if (!string.IsNullOrEmpty(ClientId) && needToSubmit)
             {
-                return SubmitSubscriptions();
+                return SubmitSubscriptionsWithReconnect();
             }
 
             return Task.CompletedTask;
@@ -330,12 +330,32 @@ namespace PocketBaseSdk
                     return;
                 }
 
-                ClientId = msg.Id;
-                await SubmitSubscriptions();
-
-                if (!completer.Task.IsCompleted)
+                try
                 {
-                    completer.TrySetResult(true);
+                    ClientId = msg.Id;
+                    await SubmitSubscriptions();
+
+                    if (!completer.Task.IsCompleted)
+                    {
+                        completer.TrySetResult(true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // The lambda is async void; any escaping exception becomes an
+                    // unhandled AppDomain exception. Route it to the completer if
+                    // the initial Connect() awaiter is still waiting, otherwise log.
+                    // A 404 here is typically a race where the SSE was torn down
+                    // (e.g. by a parallel Disconnect) between PB_CONNECT and the
+                    // POST — the surrounding caller will reconnect.
+                    if (!completer.Task.IsCompleted)
+                    {
+                        completer.TrySetException(ex);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[RealtimeService] SubmitSubscriptions after PB_CONNECT failed: {ex.Message}");
+                    }
                 }
             };
 
