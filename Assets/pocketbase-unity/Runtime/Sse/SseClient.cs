@@ -9,7 +9,7 @@ using static UnityEngine.Networking.UnityWebRequest.Result;
 
 namespace PocketBaseSdk
 {
-    public class SseClient
+    public class SseClient : IDisposable
     {
         private static readonly List<int> _defaultRetryTimeouts = new() { 200, 300, 500, 1000, 1200, 1500, 2000 };
 
@@ -62,6 +62,10 @@ namespace PocketBaseSdk
 
             _isClosed = true;
             _sseMessage = null;
+
+            // Cancel any in-flight request before disposing so cleanup is synchronous.
+            try { _request?.Abort(); } catch { /* may already be disposed */ }
+
             CleanupRequest();
 
             Application.quitting -= Close;
@@ -78,67 +82,103 @@ namespace PocketBaseSdk
             OnClose = null;
         }
 
+        public void Dispose() => Close();
+
         private IEnumerator ConnectCoroutine()
         {
             _sseMessage = new SseMessage();
             _receivedAnyMessage = false;
-            _request = new UnityWebRequest(_url);
 
-            foreach (var (key, value) in _customHeaders)
+            // Local reference: a successor coroutine may replace _request before this
+            // iterator's finally block runs.
+            var localRequest = new UnityWebRequest(_url);
+            _request = localRequest;
+            bool disposedNormally = false;
+
+            try
             {
-                _request.SetRequestHeader(key, value);
-            }
-
-            // Set SSE-specific headers
-            _request.SetRequestHeader("Accept", "text/event-stream");
-            _request.SetRequestHeader("Cache-Control", "no-cache");
-
-            _request.downloadHandler = new DownloadHandlerSseMessage(OnMessageReceived);
-            _request.SendWebRequest();
-
-            while (_request.result is InProgress)
-            {
-                yield return null;
-            }
-
-            if (_isClosed)
-            {
-                CleanupRequest();
-                yield break;
-            }
-
-            var requestResult = _request.result;
-            var requestError = _request.error;
-            int retryTimeout = _sseMessage?.Retry ?? 0;
-
-            if (_receivedAnyMessage)
-            {
-                _retryAttempts = 0;
-            }
-
-            CleanupRequest();
-
-            if (requestResult == Success)
-            {
-                OnError?.Invoke(null);
-                yield return Reconnect(retryTimeout);
-                yield break;
-            }
-
-            WebException webEx = new(
-                $"{requestResult}: {requestError} ({_url})",
-                requestResult switch
+                foreach (var (key, value) in _customHeaders)
                 {
-                    ConnectionError => WebExceptionStatus.ConnectFailure,
-                    ProtocolError => WebExceptionStatus.ProtocolError,
-                    DataProcessingError => WebExceptionStatus.ReceiveFailure,
-                    _ => WebExceptionStatus.UnknownError
+                    localRequest.SetRequestHeader(key, value);
                 }
-            );
 
-            OnError?.Invoke(webEx);
+                // Set SSE-specific headers
+                localRequest.SetRequestHeader("Accept", "text/event-stream");
+                localRequest.SetRequestHeader("Cache-Control", "no-cache");
 
-            yield return Reconnect(retryTimeout);
+                // SSE streams are long-lived; disable the per-request timeout.
+                localRequest.timeout = 0;
+
+                localRequest.downloadHandler = new DownloadHandlerSseMessage(OnMessageReceived);
+                localRequest.SendWebRequest();
+
+                while (localRequest.result is InProgress)
+                {
+                    if (_isClosed)
+                    {
+                        yield break;
+                    }
+                    yield return null;
+                }
+
+                if (_isClosed)
+                {
+                    yield break;
+                }
+
+                var requestResult = localRequest.result;
+                var requestError = localRequest.error;
+                int retryTimeout = _sseMessage?.Retry ?? 0;
+
+                if (_receivedAnyMessage)
+                {
+                    _retryAttempts = 0;
+                }
+
+                // Dispose now (before yielding to Reconnect) instead of waiting for the finalizer.
+                if (_request == localRequest)
+                {
+                    _request = null;
+                }
+                
+                localRequest.Dispose();
+                disposedNormally = true;
+
+                if (requestResult == Success)
+                {
+                    OnError?.Invoke(null);
+                    yield return Reconnect(retryTimeout);
+                    yield break;
+                }
+
+                WebException webEx = new(
+                    $"{requestResult}: {requestError} ({_url})",
+                    requestResult switch
+                    {
+                        ConnectionError => WebExceptionStatus.ConnectFailure,
+                        ProtocolError => WebExceptionStatus.ProtocolError,
+                        DataProcessingError => WebExceptionStatus.ReceiveFailure,
+                        _ => WebExceptionStatus.UnknownError
+                    }
+                );
+
+                OnError?.Invoke(webEx);
+
+                yield return Reconnect(retryTimeout);
+            }
+            finally
+            {
+                // Release the request if normal flow didn't (e.g. StopCoroutine, scene unload).
+                if (!disposedNormally)
+                {
+                    if (_request == localRequest)
+                    {
+                        _request = null;
+                    }
+                    try { localRequest.Abort(); } catch { /* may already be disposed */ }
+                    try { localRequest.Dispose(); } catch { /* may already be disposed */ }
+                }
+            }
         }
 
         private void OnMessageReceived(SseMessage sseMessage)

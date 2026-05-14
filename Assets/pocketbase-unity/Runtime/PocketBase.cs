@@ -249,6 +249,7 @@ namespace PocketBaseSdk
             }
 
             request.downloadHandler = new DownloadHandlerBuffer();
+            request.timeout = 30;
 
             return request;
         }
@@ -284,6 +285,9 @@ namespace PocketBaseSdk
                     request.SetRequestHeader(key, value);
                 }
             }
+
+            // Uploads can take longer than the default JsonRequest timeout.
+            request.timeout = 60;
 
             return request;
         }
