@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.10-fork.3] - 2026-05-14
+
+### Fixed
+
+- `RealtimeService`: the async-void `PB_CONNECT` handler inside `Connect()` no longer lets exceptions escape unhandled. Exceptions thrown by `SubmitSubscriptions()` are now routed to the connect completer (so the initial `Subscribe()` caller observes them instead of hanging), and exceptions on later auto-reconnect `PB_CONNECT`s are logged instead of propagating to `AppDomain.UnhandledException`. The most common trigger is a 404 race where a parallel `Disconnect()` invalidates the freshly-issued client id between `PB_CONNECT` and the `SubmitSubscriptions` POST.
+- `RealtimeService`: `Unsubscribe`, `UnsubscribeByPrefix`, and `UnsubscribeByTopicAndListener` now route their `SubmitSubscriptions` call through `SubmitSubscriptionsWithReconnect`, matching the existing behaviour of `Subscribe`. A stale client id (404, typically after the server's 5-minute idle subscription invalidation) now triggers a reconnect on every realtime mutation path instead of just on `Subscribe`.
+
 ## [0.23.10] - 2026-03-29
 
 ### Fixed
